@@ -1,1 +1,69 @@
 
+/* تنسيق عام للصفحة */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    padding: 20px;
+    text-align: right; /* للنصوص العربية */
+    direction: rtl; /* للتأكد من أن العناصر تبدأ من اليمين */
+}
+
+/* تنسيق العنوان */
+h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+/* تنسيق حقول الإدخال */
+input[type="text"], input[type="number"] {
+    width: 200px;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+/* تنسيق الزر */
+button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+/* تنسيق النتائج */
+#result {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#result h3 {
+    color: #27ae60;
+    margin-bottom: 10px;
+}
+
+#result p {
+    margin: 5px 0;
+    font-size: 1.1em;
+}
+
+/* تنسيق للأخطاء */
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+}
