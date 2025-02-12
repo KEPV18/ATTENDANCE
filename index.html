@@ -3,144 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فحص اتصال الجوجل شيت</title>
+    <title>نظام متابعة الحضور</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background: #f8f9fa;
+            --text-color: #2c3e50;
         }
-        .result-box {
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            padding: 30px;
-            max-width: 600px;
-            width: 100%;
-            margin: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
         }
+
         .loading-spinner {
             width: 3rem;
             height: 3rem;
         }
-        .alert {
-            font-size: 1.1rem;
+
+        .deduction-item {
+            border-left: 4px solid #e74c3c;
+            background: #fff5f5;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="result-box text-center">
-        <h2 class="mb-4">فحص اتصال الجوجل شيت</h2>
-        <div id="result"></div>
-        <button id="retryBtn" class="btn btn-primary mt-3" style="display: none;">
-            إعادة المحاولة
-        </button>
+    <div class="container">
+        <h1 class="text-center mb-4">نظام متابعة الحضور</h1>
+        
+        <div class="input-group mb-4">
+            <input type="text" id="employeeName" class="form-control" placeholder="اسم الموظف">
+            <select id="month" class="form-select">
+                <option value="1">يناير</option>
+                <option value="2">فبراير</option>
+                <option value="3">مارس</option>
+                <option value="4">أبريل</option>
+                <option value="5">مايو</option>
+                <option value="6">يونيو</option>
+                <option value="7">يوليو</option>
+                <option value="8">أغسطس</option>
+                <option value="9">سبتمبر</option>
+                <option value="10">أكتوبر</option>
+                <option value="11">نوفمبر</option>
+                <option value="12">ديسمبر</option>
+            </select>
+            <button class="btn btn-primary" onclick="fetchAttendance()">عرض النتائج</button>
+        </div>
+
+        <div id="output" class="result-box"></div>
     </div>
 
     <script>
         const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
         const API_KEY = "AIzaSyBIAZIlEL2OqSP4SGvUjcjZwL9p7aPVWuA";
 
-        function showResult(content, type = 'info') {
-            const resultDiv = document.getElementById('result');
-            let html = `
-                <div class="alert alert-${type} d-flex align-items-center">
-                    ${content}
-                </div>
-            `;
-            resultDiv.innerHTML = html;
-        }
+        async function fetchAttendance() {
+            const employeeName = document.getElementById("employeeName").value.trim();
+            const month = document.getElementById("month").value;
+            const outputDiv = document.getElementById("output");
+            
+            showLoading(outputDiv);
 
-        async function checkConnection() {
-            // إظهار حالة التحميل
-            showResult(`
-                <div class="d-flex justify-content-center align-items-center">
-                    <div class="spinner-border text-primary loading-spinner" role="status">
-                        <span class="visually-hidden">جاري التحميل...</span>
-                    </div>
-                    <span class="ms-2">جاري فحص الاتصال...</span>
-                </div>
-            `, 'info');
+            if (!validateInput(employeeName, outputDiv)) return;
 
             try {
-                const response = await fetch(
-                    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`
-                );
-
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('NOT_FOUND');
-                    } else if (response.status === 403) {
-                        throw new Error('API_ERROR');
-                    } else {
-                        throw new Error('UNKNOWN_ERROR');
-                    }
+                const sheets = await getSheetsForMonth(month);
+                if (!sheets.length) {
+                    showError("لا توجد بيانات لهذا الشهر", outputDiv);
+                    return;
                 }
 
-                const data = await response.json();
-                const sheetNames = data.sheets.map(sheet => sheet.properties.title);
-                
-                // عرض النتيجة الناجحة
-                showResult(`
-                    <h5 class="text-success mb-3">✅ تم الاتصال بنجاح</h5>
-                    <div class="text-start">
-                        <p>عدد الأوراق: <strong>${sheetNames.length}</strong></p>
-                        <p>أسماء الأوراق:</p>
-                        <ul class="list-group">
-                            ${sheetNames.map(name => `
-                                <li class="list-group-item">${name}</li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                `, 'success');
+                const attendanceData = await processSheets(sheets, employeeName);
+                if (!attendanceData.length) {
+                    showError("لا توجد بيانات لهذا الموظف", outputDiv);
+                    return;
+                }
 
+                displayResults(attendanceData, outputDiv);
             } catch (error) {
-                // معالجة الأخطاء
-                let errorMessage;
-                switch(error.message) {
-                    case 'NOT_FOUND':
-                        errorMessage = `
-                            <h5 class="text-danger">❌ المشكلة في الشيت</h5>
-                            <p>الأسباب المحتملة:</p>
-                            <ul>
-                                <li>رقم الشيت غير صحيح</li>
-                                <li>الملف غير مشترك بشكل public</li>
-                            </ul>
-                        `;
-                        break;
-                    case 'API_ERROR':
-                        errorMessage = `
-                            <h5 class="text-danger">❌ مشكلة في الـ API Key</h5>
-                            <p>تأكد من:</p>
-                            <ul>
-                                <li>صحة مفتاح الـ API</li>
-                                <li>تفعيل Google Sheets API</li>
-                            </ul>
-                        `;
-                        break;
-                    default:
-                        errorMessage = `
-                            <h5 class="text-danger">⚠️ خطأ في الاتصال</h5>
-                            <p>${error.message || 'حدث خطأ غير متوقع'}</p>
-                        `;
-                }
-
-                showResult(errorMessage, 'danger');
-                document.getElementById('retryBtn').style.display = 'inline-block';
+                handleError(error, outputDiv);
             }
         }
 
-        // تشغيل الفحص الأولي
-        checkConnection();
+        // ============== Helper Functions ==============
+        function showLoading(container) {
+            container.innerHTML = `
+                <div class="alert alert-info d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2"></div>
+                    جاري جلب البيانات...
+                </div>
+            `;
+        }
 
-        // إضافة إمكانية إعادة المحاولة
-        document.getElementById('retryBtn').addEventListener('click', () => {
-            document.getElementById('retryBtn').style.display = 'none';
-            checkConnection();
-        });
+        function validateInput(name, container) {
+            if (!name) {
+                showError("الرجاء إدخال اسم الموظف", container);
+                return false;
+            }
+            return true;
+        }
+
+        async function getSheetsForMonth(month) {
+            const response = await fetch(
+                `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`
+            );
+            
+            if (!response.ok) throw new Error('CONNECTION_ERROR');
+            
+            const data = await response.json();
+            return data.sheets
+                .filter(sheet => {
+                    const [_, sheetMonth] = sheet.properties.title.split('/');
+                    return sheetMonth === month;
+                })
+                .map(sheet => sheet.properties.title);
+        }
+
+        async function processSheets(sheetNames, employeeName) {
+            let attendanceData = [];
+            
+            for (const sheetName of sheetNames) {
+                try {
+                    const response = await fetch(
+                        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
+                    );
+                    
+                    if (!response.ok) continue;
+                    
+                    const data = await response.json();
+                    if (!data.values) continue;
+
+                    const employeeRow = data.values.find(row => row[3] === employeeName);
+                    if (!employeeRow) continue;
+
+                    attendanceData.push(processRow(sheetName, employeeRow));
+                } catch (error) {
+                    console.error('Error processing sheet:', error);
+                }
+            }
+            
+            return attendanceData;
+        }
+
+        function processRow(sheetName, row) {
+            const day = sheetName.split('/')[0];
+            const status = row[14] || "0";
+            const time = row[15]?.trim() || "";
+            const deduction = row[17]?.trim() || "";
+            
+            return {
+                day,
+                status,
+                time,
+                deduction,
+                isLate: checkLateTime(time)
+            };
+        }
+
+        function checkLateTime(timeStr) {
+            if (!timeStr) return false;
+            
+            const [timePart, period] = timeStr.split(' ');
+            let [hours, minutes] = timePart.split(':').map(Number);
+            
+            if (period?.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+            if (period?.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            
+            return hours > 8 || (hours === 8 && minutes > 5);
+        }
+
+        function displayResults(data, container) {
+            const totalPresent = data.filter(item => item.status !== "0").length;
+            const deductions = calculateDeductions(data);
+            
+            container.innerHTML = `
+                <div class="summary row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-white bg-success h-100">
+                            <div class="card-body">
+                                <h5>إجمالي الأيام</h5>
+                                <p class="display-4">${totalPresent}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-danger h-100">
+                            <div class="card-body">
+                                <h5>إجمالي الخصومات</h5>
+                                <p class="display-4">${deductions.total}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-primary h-100">
+                            <div class="card-body">
+                                <h5>صافي الأيام</h5>
+                                <p class="display-4">${totalPresent - deductions.total}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${renderDeductions(deductions.list)}
+            `;
+        }
+
+        function calculateDeductions(data) {
+            let total = 0;
+            const list = [];
+            
+            data.forEach(item => {
+                if (item.isLate) {
+                    total += 0.5;
+                    list.push({
+                        type: 'تأخير',
+                        day: item.day,
+                        details: item.time
+                    });
+                }
+                if (item.deduction) {
+                    total += 1;
+                    list.push({
+                        type: 'خصم',
+                        day: item.day,
+                        details: item.deduction
+                    });
+                }
+            });
+            
+            return { total, list };
+        }
+
+        function renderDeductions(deductions) {
+            if (!deductions.length) return '<p class="text-success">لا توجد خصومات</p>';
+            
+            return `
+                <h4 class="mb-3">تفاصيل الخصومات:</h4>
+                <div class="deduction-list">
+                    ${deductions.map(d => `
+                        <div class="deduction-item p-3 mb-2">
+                            <strong>يوم ${d.day}:</strong> (${d.type}) ${d.details}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showError(message, container) {
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    ❌ ${message}
+                </div>
+            `;
+        }
+
+        function handleError(error, container) {
+            console.error(error);
+            const message = error.message === 'CONNECTION_ERROR' 
+                ? 'خطأ في الاتصال بالخادم - تأكد من اتصال الإنترنت'
+                : 'حدث خطأ غير متوقع';
+            showError(message, container);
+        }
     </script>
 </body>
 </html>
