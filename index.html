@@ -49,22 +49,34 @@
         async function fetchAttendance() {
             const employeeName = document.getElementById("employeeName").value.trim();
             const month = document.getElementById("month").value;
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "Loading...";
+
             if (!employeeName) {
-                alert("Please enter an employee name.");
+                outputDiv.innerHTML = "❌ Please enter an employee name.";
                 return;
             }
+
             let attendanceData = [];
+            let sheetFound = false;
+            let employeeFound = false;
 
             for (let day = 1; day <= 31; day++) {
                 const sheetName = `${day}/${month}`;
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}?key=${API_KEY}`;
                 try {
                     const response = await fetch(url);
+                    if (!response.ok) {
+                        outputDiv.innerHTML = "❌ Error fetching data. Please check API key or Sheet ID.";
+                        return;
+                    }
                     const data = await response.json();
                     if (!data.values) continue;
 
+                    sheetFound = true;
                     for (let row of data.values) {
                         if (row[3] === employeeName) {
+                            employeeFound = true;
                             const status = row[14] || "0";
                             const time = row[15] || "-";
                             const deduction = row[17] || "None";
@@ -73,18 +85,24 @@
                         }
                     }
                 } catch (error) {
-                    console.error("Error fetching data:", error);
+                    outputDiv.innerHTML = "❌ Error fetching data. Possible API issue.";
+                    return;
                 }
+            }
+
+            if (!sheetFound) {
+                outputDiv.innerHTML = "⚠️ No sheets found for the selected month. Make sure the sheet names follow the format 'day/month'.";
+                return;
+            }
+            if (!employeeFound) {
+                outputDiv.innerHTML = "⚠️ No records found for this employee in the selected month.";
+                return;
             }
             displayAttendance(attendanceData);
         }
 
         function displayAttendance(data) {
             const outputDiv = document.getElementById("output");
-            if (data.length === 0) {
-                outputDiv.innerHTML = "No attendance records found.";
-                return;
-            }
             let resultHTML = "<h2>Attendance Details</h2>";
             data.forEach(record => {
                 resultHTML += `<p>Day ${record.day}: ${record.status !== "0" ? "Present" : "Absent"}`;
