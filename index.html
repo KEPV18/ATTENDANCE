@@ -1,106 +1,44 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <!-- نفس جزء الـ head السابق مع الـ CSS -->
-</head>
+<html>
 <body>
-    <!-- نفس جزء الـ body السابق -->
-
     <script>
-        const SHEET_ID = "1Hd-aSvnKrXWk3QYEzxY1DjgxHk8fA49t2QmNoIhCMq4";
-        const API_KEY = "AIzaSyBIAZIlEL2OqSP4SGvUjcjZwL9p7aPVWuA";
+        const TEST_SHEET_ID = "1Hd-aSvnKrXWk3QYEzxY1DjgxHk8fA49t2QmNoIhCMq4";
+        const TEST_API_KEY = "AIzaSyBIAZIlEL2OqSP4SGvUjcjZwL9p7aPVWuA";
 
-        async function fetchAttendance() {
-            const employeeName = document.getElementById("employeeName").value.trim();
-            const month = document.getElementById("month").value;
-            const outputDiv = document.getElementById("output");
-            
-            outputDiv.innerHTML = `<div class="loading">جاري البحث...</div>`;
-
-            if (!employeeName) {
-                showError("الرجاء إدخال اسم الموظف");
-                return;
-            }
-
+        async function testSheetAccess() {
             try {
-                // جلب قائمة جميع الأوراق
-                const sheetsResponse = await fetch(
-                    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}&includeGridData=false`
+                const response = await fetch(
+                    `https://sheets.googleapis.com/v4/spreadsheets/${TEST_SHEET_ID}?key=${TEST_API_KEY}`
                 );
-                
-                if (!sheetsResponse.ok) {
-                    showError("خطأ في الاتصال بالخادم");
-                    return;
-                }
 
-                const sheetsData = await sheetsResponse.json();
-                const filteredSheets = sheetsData.sheets
-                    .filter(sheet => {
-                        const parts = sheet.properties.title.split('/');
-                        return parts.length === 2 && parts[1] === month;
-                    })
-                    .map(sheet => sheet.properties.title);
-
-                if (filteredSheets.length === 0) {
-                    showError("لا توجد بيانات لهذا الشهر");
-                    return;
-                }
-
-                // جلب البيانات من جميع الأوراق المطلوبة
-                let attendanceData = [];
-                let employeeFound = false;
-
-                for (const sheetName of filteredSheets) {
-                    try {
-                        const encodedSheetName = encodeURIComponent(sheetName);
-                        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodedSheetName}?key=${API_KEY}`;
-                        const response = await fetch(url);
-                        
-                        if (!response.ok) {
-                            console.warn(`Sheet ${sheetName} not found, skipping...`);
-                            continue;
-                        }
-
-                        const data = await response.json();
-                        if (!data.values) continue;
-
-                        const employeeRow = data.values.find(row => row[3] === employeeName);
-                        if (!employeeRow) continue;
-
-                        employeeFound = true;
-                        const day = sheetName.split('/')[0];
-                        const status = employeeRow[14] || "0";
-                        const time = employeeRow[15]?.trim() || "";
-                        const deduction = employeeRow[17]?.trim() || "";
-                        
-                        // حساب التأخير
-                        const isLate = checkLateTime(time);
-                        
-                        attendanceData.push({
-                            day,
-                            status,
-                            time,
-                            deduction,
-                            isLate
-                        });
-                    } catch (sheetError) {
-                        console.error(`Error processing sheet ${sheetName}:`, sheetError);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        console.error('المشكلة في الشيت:', response.statusText);
+                        alert('❌ الشيت غير موجود أو غير مشترك بشكل public');
+                    } else if (response.status === 403) {
+                        console.error('المشكلة في الـ API:', response.statusText);
+                        alert('❌ مشكلة في الـ API Key (ممنوع الوصول)');
+                    } else {
+                        console.error('خطأ غير متوقع:', response.status);
+                        alert('⚠️ خطأ غير مت预期的: ' + response.status);
                     }
-                }
-
-                if (!employeeFound) {
-                    showError("لا توجد بيانات لهذا الموظف");
                     return;
                 }
 
-                displayResults(attendanceData);
+                const data = await response.json();
+                const sheetNames = data.sheets.map(sheet => sheet.properties.title);
+                
+                console.log('أسماء الأوراق الموجودة:', sheetNames);
+                alert(`✅ تم جلب ${sheetNames.length} ورقة بنجاح\nالأوراق: ${sheetNames.join(', ')}`);
+                
             } catch (error) {
-                showError("حدث خطأ في جلب البيانات");
-                console.error(error);
+                console.error('خطأ في الشبكة:', error);
+                alert('🚨 فشل الاتصال بالخادم - تأكد من اتصال الإنترنت');
             }
         }
 
-        // باقي الدوال كما هي (checkLateTime, displayResults, showError)
+        // تشغيل الاختبار تلقائيًا عند فتح الصفحة
+        testSheetAccess();
     </script>
 </body>
 </html>
