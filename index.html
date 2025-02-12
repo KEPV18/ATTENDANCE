@@ -157,6 +157,53 @@
                 
                 const { presentDays, absences, deductions } = await processAttendanceData(sheets, employeeName);
                 if (!presentDays.length) return showError("No records found for this employee", outputDiv);
+
+
+                // Add these functions after the existing helper functions and before displayDashboard
+
+function handleError(error, container) {
+    console.error('Error:', error);
+    let errorMessage = 'An unexpected error occurred. Please try again.';
+    
+    if (error.message === 'API_ERROR') {
+        errorMessage = 'Failed to fetch data from Google Sheets. Please check your connection and try again.';
+    }
+    
+    showError(errorMessage, container);
+}
+
+function showError(message, container) {
+    container.innerHTML = `
+        <div class="alert alert-danger animate__animated animate__shakeX" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            ${message}
+        </div>
+    `;
+}
+
+function checkLateArrival(checkInTime) {
+    if (!checkInTime) return false;
+    const [hours, minutes] = checkInTime.split(':').map(Number);
+    return hours > 9 || (hours === 9 && minutes > 30);
+}
+
+function checkEarlyDeparture(checkOutTime) {
+    if (!checkOutTime) return 'full-day';
+    const [hours, minutes] = checkOutTime.split(':').map(Number);
+    if (hours < 16) return 'full-day';
+    if (hours < 17 || (hours === 17 && minutes < 30)) return 'half-day';
+    return false;
+}
+
+function updateCycleInfo(cycleDates) {
+    const cycleInfo = document.getElementById('cycleInfo');
+    cycleInfo.innerHTML = `
+        <div class="text-muted">
+            <i class="bi bi-info-circle"></i>
+            Attendance cycle: ${cycleDates[0]} to ${cycleDates[cycleDates.length - 1]}
+        </div>
+    `;
+}
                 
                 displayDashboard(presentDays, absences, deductions, cycleDates, outputDiv);
                 updateCycleInfo(cycleDates);
