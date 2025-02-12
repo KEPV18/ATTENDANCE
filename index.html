@@ -3,437 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Attendance Management System</title>
+    <title>Employee Attendance System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/animate.css@4.1.1/animate.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --light: #f8f9fa;
-            --dark: #2c3e50;
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --background: #f8f9fa;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--primary-color);
+            padding: 2rem 0;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: transform 0.3s ease;
+        .container {
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin: 0 auto;
         }
 
-        .glass-card:hover {
-            transform: translateY(-5px);
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 0.35rem 0.7rem;
-            border-radius: 20px;
+        .result-card {
+            border-left: 4px solid;
+            padding: 1.25rem;
+            margin: 1rem 0;
         }
 
-        .timeline-item {
-            position: relative;
-            padding-left: 2rem;
-            margin-bottom: 1.5rem;
+        .deduction-item {
+            border-left: 3px solid var(--danger-color);
+            padding-left: 1rem;
+            margin: 0.5rem 0;
         }
 
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
+        .salary-box {
+            background: #e9f5e9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
         }
 
-        .skeleton-loader {
-            animation: pulse 1.5s infinite;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .chart-container {
-            height: 300px;
-            transition: opacity 0.5s ease;
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(52, 152, 219, 0.1);
         }
     </style>
 </head>
-<body class="py-4">
+<body>
     <div class="container">
-        <div class="glass-card p-4 mb-4 animate__animated animate__fadeIn">
-            <h1 class="text-center mb-4 fw-bold text-primary">
-                <i class="bi bi-calendar-check"></i> Payroll Attendance System
-            </h1>
-
-            <div class="row g-3 mb-4">
-                <div class="col-lg-5">
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white">
-                            <i class="bi bi-person"></i>
-                        </span>
-                        <input type="text" id="employeeName" class="form-control form-control-lg" 
-                               placeholder="Enter employee name" autocomplete="off">
-                    </div>
+        <h1 class="text-center mb-4">Employee Attendance Tracker</h1>
+        
+        <div class="input-section">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" id="employeeName" class="form-control form-control-lg" placeholder="Enter employee name">
                 </div>
-
-                <div class="col-lg-5">
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white">
-                            <i class="bi bi-calendar"></i>
-                        </span>
-                        <select id="month" class="form-select form-select-lg">
-                            <option value="1">January (26 Dec - 25 Jan)</option>
-                            <option value="2">February (26 Jan - 25 Feb)</option>
-                            <option value="3">March (26 Feb - 25 Mar)</option>
-                            <option value="4">April (26 Mar - 25 Apr)</option>
-                            <option value="5">May (26 Apr - 25 May)</option>
-                            <option value="6">June (26 May - 25 Jun)</option>
-                            <option value="7">July (26 Jun - 25 Jul)</option>
-                            <option value="8">August (26 Jul - 25 Aug)</option>
-                            <option value="9">September (26 Aug - 25 Sep)</option>
-                            <option value="10">October (26 Sep - 25 Oct)</option>
-                            <option value="11">November (26 Oct - 25 Nov)</option>
-                            <option value="12">December (26 Nov - 25 Dec)</option>
-                        </select>
-                    </div>
+                <div class="col-md-4">
+                    <select id="month" class="form-select form-select-lg">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
                 </div>
-
-                <div class="col-lg-2">
-                    <button class="btn btn-primary btn-lg w-100 h-100" 
-                            onclick="fetchAttendance()"
-                            id="generateBtn">
-                        <i class="bi bi-file-earmark-text"></i> Generate Report
-                    </button>
+                <div class="col-md-2">
+                    <button class="btn btn-primary btn-lg w-100" onclick="fetchAttendance()">Generate Report</button>
                 </div>
             </div>
-
-            <div id="cycleInfo" class="text-center mb-4"></div>
         </div>
 
-        <div id="output" class="glass-card p-4 animate__animated animate__fadeInUp"></div>
+        <div id="output"></div>
     </div>
 
-    <!-- Chart Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <script>
         const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
         const API_KEY = "AIzaSyBIAZIlEL2OqSP4SGvUjcjZwL9p7aPVWuA";
         const MONTHLY_SALARY = 5500;
         const WORKING_DAYS = 26;
-        let attendanceChart = null;
 
         async function fetchAttendance() {
             const employeeName = document.getElementById("employeeName").value.trim();
             const month = document.getElementById("month").value;
             const outputDiv = document.getElementById("output");
-            const btn = document.getElementById("generateBtn");
             
-            btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Processing...`;
-            outputDiv.innerHTML = createSkeletonLoader();
-            
+            outputDiv.innerHTML = createLoading();
+            if (!validateInput(employeeName)) return;
+
             try {
-                const { sheets, cycleDates } = await getCycleSheets(month);
-                if (!sheets.length) return showError("No attendance records found for this cycle", outputDiv);
+                const sheets = await getMonthSheets(month);
+                if (!sheets.length) return showError("No data found for selected month", outputDiv);
                 
-                const { presentDays, absences, deductions } = await processAttendanceData(sheets, employeeName);
+                const { presentDays, allDays } = await processSheets(sheets, employeeName);
                 if (!presentDays.length) return showError("No records found for this employee", outputDiv);
-
-
-                // Add these functions after the existing helper functions and before displayDashboard
-
-function handleError(error, container) {
-    console.error('Error:', error);
-    let errorMessage = 'An unexpected error occurred. Please try again.';
-    
-    if (error.message === 'API_ERROR') {
-        errorMessage = 'Failed to fetch data from Google Sheets. Please check your connection and try again.';
-    }
-    
-    showError(errorMessage, container);
-}
-
-function showError(message, container) {
-    container.innerHTML = `
-        <div class="alert alert-danger animate__animated animate__shakeX" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            ${message}
-        </div>
-    `;
-}
-
-function checkLateArrival(checkInTime) {
-    if (!checkInTime) return false;
-    const [hours, minutes] = checkInTime.split(':').map(Number);
-    return hours > 9 || (hours === 9 && minutes > 30);
-}
-
-function checkEarlyDeparture(checkOutTime) {
-    if (!checkOutTime) return 'full-day';
-    const [hours, minutes] = checkOutTime.split(':').map(Number);
-    if (hours < 16) return 'full-day';
-    if (hours < 17 || (hours === 17 && minutes < 30)) return 'half-day';
-    return false;
-}
-
-function updateCycleInfo(cycleDates) {
-    const cycleInfo = document.getElementById('cycleInfo');
-    cycleInfo.innerHTML = `
-        <div class="text-muted">
-            <i class="bi bi-info-circle"></i>
-            Attendance cycle: ${cycleDates[0]} to ${cycleDates[cycleDates.length - 1]}
-        </div>
-    `;
-}
                 
-                displayDashboard(presentDays, absences, deductions, cycleDates, outputDiv);
-                updateCycleInfo(cycleDates);
+                displayReport(presentDays, allDays, month, outputDiv);
             } catch (error) {
                 handleError(error, outputDiv);
-            } finally {
-                btn.innerHTML = `<i class="bi bi-file-earmark-text"></i> Generate Report`;
             }
         }
 
-        // Helper Functions
-        function createSkeletonLoader() {
-            return `
-                <div class="skeleton-loader p-4">
-                    <div class="skeleton-line mb-3" style="height: 35px; width: 60%"></div>
-                    <div class="skeleton-line mb-4" style="height: 100px"></div>
-                    <div class="row g-4">
-                        ${Array(3).fill().map(() => `
-                            <div class="col-md-4">
-                                <div class="skeleton-line" style="height: 150px"></div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+        // Helper functions
+        function createLoading() {
+            return `<div class="d-flex align-items-center text-primary">
+                <div class="spinner-border me-2"></div>
+                Analyzing attendance data...
+            </div>`;
         }
 
-        async function getCycleSheets(month) {
+        function validateInput(name) {
+            if (!name) {
+                showError("Please enter employee name", document.getElementById("output"));
+                return false;
+            }
+            return true;
+        }
+
+        async function getMonthSheets(month) {
             const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
             if (!response.ok) throw new Error('API_ERROR');
             
             const data = await response.json();
-            const allSheets = data.sheets.map(sheet => sheet.properties.title);
-            const cycleDates = generateCycleDates(month);
-            
-            return {
-                sheets: allSheets.filter(sheet => cycleDates.includes(sheet)),
-                cycleDates
-            };
+            return data.sheets
+                .filter(sheet => sheet.properties.title.split('/')[1] === month)
+                .map(sheet => sheet.properties.title);
         }
 
-        function generateCycleDates(targetMonth) {
-            const dates = [];
-            const prevMonth = targetMonth > 1 ? targetMonth - 1 : 12;
-            
-            // Previous month days (26-31)
-            for (let day = 26; day <= 31; day++) {
-                dates.push(`${day}/${String(prevMonth).padStart(2, '0')}`);
-            }
-            
-            // Current month days (1-25)
-            for (let day = 1; day <= 25; day++) {
-                dates.push(`${String(day).padStart(2, '0')}/${String(targetMonth).padStart(2, '0')}`);
-            }
-            
-            return dates;
-        }
-
-        async function processAttendanceData(sheetNames, employeeName) {
+        async function processSheets(sheetNames, employeeName) {
             let presentDays = [];
-            let absences = [];
-            let deductions = [];
+            const allDays = [];
             
-            // Parallel processing of sheets
-            await Promise.all(sheetNames.map(async (sheet) => {
+            for (const sheetName of sheetNames) {
                 try {
                     const response = await fetch(
-                        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheet)}?key=${API_KEY}`
+                        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
                     );
-                    if (!response.ok) return;
+                    if (!response.ok) continue;
                     
                     const data = await response.json();
-                    if (!data.values) return;
+                    if (!data.values) continue;
 
-                    const employeeRow = data.values.find(row => row[3]?.trim() === employeeName);
-                    if (!employeeRow) {
-                        absences.push(sheet);
-                        return;
-                    }
-
-                    const record = processAttendanceRecord(sheet, employeeRow);
-                    presentDays.push(record);
+                    const day = sheetName.split('/')[0];
+                    allDays.push(parseInt(day));
                     
-                    if (record.lateArrival || record.earlyDeparture) {
-                        deductions.push({
-                            date: record.date,
-                            type: record.lateArrival ? 'Late Arrival' : 'Early Departure',
-                            value: record.deductionValue,
-                            details: record.details
-                        });
-                    }
+                    const employeeRow = data.values.find(row => row[3] === employeeName);
+                    if (!employeeRow) continue;
+
+                    presentDays.push(processAttendanceRow(day, employeeRow));
                 } catch (error) {
-                    console.error(`Error processing ${sheet}:`, error);
+                    console.error('Sheet processing error:', error);
                 }
-            }));
-
-            return { presentDays, absences, deductions };
+            }
+            return { presentDays, allDays };
         }
 
-        function processAttendanceRecord(sheetName, row) {
-            const [day, month] = sheetName.split('/');
-            const record = {
-                date: `${day.padStart(2, '0')}/${month.padStart(2, '0')}`,
-                checkIn: row[14]?.trim() || "N/A",
-                checkOut: row[15]?.trim() || "N/A",
-                lateArrival: checkLateArrival(row[14]),
-                earlyDeparture: checkEarlyDeparture(row[15]),
-                deductionValue: 0,
-                details: ''
+        function processAttendanceRow(day, row) {
+            return {
+                day,
+                status: row[14] || "0",
+                time: row[15]?.trim() || "",
+                deduction: row[17]?.trim() || "",
+                isLate: checkLateTime(row[15])
             };
-
-            // Calculate deductions
-            if (record.lateArrival) {
-                record.deductionValue += 0.5;
-                record.details = `Late arrival (${record.checkIn})`;
-            }
-            if (record.earlyDeparture) {
-                record.deductionValue += record.earlyDeparture === 'full-day' ? 1 : 0.5;
-                record.details += record.details ? ', ' : '';
-                record.details += `Early departure (${record.checkOut})`;
-            }
-
-            return record;
         }
 
-        // ... (Rest of the helper functions remain similar with UI enhancements)
+        function checkLateTime(timeStr) {
+            if (!timeStr) return false;
+            const [timePart, period] = timeStr.split(' ');
+            let [hours, minutes] = timePart.split(':').map(Number);
+            
+            if (period?.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+            if (period?.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            
+            return hours > 8 || (hours === 8 && minutes > 5);
+        }
 
-        function displayDashboard(presentDays, absences, deductions, cycleDates, container) {
+        function displayReport(presentDays, allDays, month, container) {
             const dailySalary = MONTHLY_SALARY / WORKING_DAYS;
-            const totalDeductions = deductions.reduce((sum, d) => sum + d.value, 0);
-            const netSalary = (presentDays.length - totalDeductions) * dailySalary;
-
+            const deductions = calculateDeductions(presentDays);
+            const absentDays = calculateAbsences(allDays, presentDays.map(p => p.day));
+            
             container.innerHTML = `
-                <div class="row g-4 mb-4">
+                <div class="row g-4">
                     <!-- Summary Cards -->
                     <div class="col-md-4">
-                        <div class="glass-card p-3 text-center h-100">
-                            <h5 class="text-primary">Working Days</h5>
-                            <div class="display-3 fw-bold">${presentDays.length}</div>
-                            <small class="text-muted">out of ${cycleDates.length}</small>
+                        <div class="result-card border-success">
+                            <h5>Present Days</h5>
+                            <div class="display-4">${presentDays.length}</div>
                         </div>
                     </div>
-                    
                     <div class="col-md-4">
-                        <div class="glass-card p-3 text-center h-100">
-                            <h5 class="text-danger">Total Deductions</h5>
-                            <div class="display-3 fw-bold">${totalDeductions}</div>
-                            <small class="text-muted">days</small>
+                        <div class="result-card border-danger">
+                            <h5>Absent Days</h5>
+                            <div class="display-4">${absentDays.length}</div>
                         </div>
                     </div>
-                    
                     <div class="col-md-4">
-                        <div class="glass-card p-3 text-center h-100">
-                            <h5 class="text-success">Expected Salary</h5>
-                            <div class="display-3 fw-bold">${netSalary.toFixed(2)}</div>
-                            <small class="text-muted">EGP</small>
+                        <div class="result-card border-primary">
+                            <h5>Deductions</h5>
+                            <div class="display-4">${deductions.total}</div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Detailed Sections -->
-                <div class="row g-4">
-                    <div class="col-lg-8">
-                        <div class="glass-card p-4 h-100">
-                            <h4 class="mb-4"><i class="bi bi-bar-chart"></i> Attendance Overview</h4>
-                            <div class="chart-container">
-                                <canvas id="attendanceChart"></canvas>
+                    <!-- Salary Calculation -->
+                    <div class="col-12">
+                        <div class="salary-box">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h5>Daily Salary</h5>
+                                    <p>$${dailySalary.toFixed(2)}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h5>Net Working Days</h5>
+                                    <p>${presentDays.length - deductions.total}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h5>Expected Salary</h5>
+                                    <p class="text-success">$${(dailySalary * (presentDays.length - deductions.total)).toFixed(2)}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-lg-4">
-                        <div class="glass-card p-4 h-100">
-                            <h4 class="mb-4"><i class="bi bi-exclamation-triangle"></i> Deductions</h4>
-                            ${deductions.length ? deductions.map(d => `
-                                <div class="timeline-item animate__animated animate__fadeInRight">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="mb-1">${d.date}</h6>
-                                            <small class="text-muted">${d.type}</small>
-                                        </div>
-                                        <span class="status-badge bg-danger">
-                                            -${d.value} day${d.value > 1 ? 's' : ''}
-                                        </span>
-                                    </div>
-                                    <small class="text-muted d-block mt-1">${d.details}</small>
-                                </div>
-                            `).join('') : `<div class="text-center text-muted">No deductions found</div>`}
+
+                    <!-- Detailed Sections -->
+                    <div class="col-12">
+                        <div class="accordion" id="reportAccordion">
+                            ${createAccordionSection('present', 'Present Days', presentDays)}
+                            ${createAccordionSection('absent', 'Absent Days', absentDays)}
+                            ${createAccordionSection('deductions', 'Deductions', deductions.list)}
                         </div>
                     </div>
                 </div>
             `;
-
-            // Initialize Chart
-            initAttendanceChart(presentDays, absences, deductions);
         }
 
-        function initAttendanceChart(present, absent, deductions) {
-            if (attendanceChart) attendanceChart.destroy();
+        function createAccordionSection(type, title, items) {
+            return `
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button ${type !== 'present' ? 'collapsed' : ''}" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#${type}Section">
+                            ${title} (${items.length})
+                        </button>
+                    </h2>
+                    <div id="${type}Section" 
+                         class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
+                         data-bs-parent="#reportAccordion">
+                        <div class="accordion-body">
+                            ${items.length ? items.map(item => type === 'deductions' ? `
+                                <div class="deduction-item">
+                                    <strong>Day ${item.day}:</strong> ${item.details}
+                                    <span class="badge bg-danger">${item.value} day</span>
+                                </div>
+                            ` : `
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span>Day ${item.day || item}</span>
+                                    ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
+                                </div>
+                            `).join('') : 'No records found'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateDeductions(presentDays) {
+            let total = 0;
+            const list = [];
             
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            attendanceChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Present Days', 'Absences', 'Deductions'],
-                    datasets: [{
-                        data: [present.length, absent.length, deductions.length],
-                        backgroundColor: [
-                            'rgba(40, 167, 69, 0.8)',
-                            'rgba(220, 53, 69, 0.8)',
-                            'rgba(255, 193, 7, 0.8)'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: { enabled: true }
-                    },
-                    animation: { duration: 1000 }
+            presentDays.forEach(day => {
+                if (day.isLate) {
+                    total += 0.5;
+                    list.push({
+                        day: day.day,
+                        details: `Late arrival (${day.time})`,
+                        value: 0.5
+                    });
+                }
+                if (day.deduction) {
+                    total += 1;
+                    list.push({
+                        day: day.day,
+                        details: day.deduction,
+                        value: 1
+                    });
                 }
             });
+            
+            return { total, list };
         }
 
-        // ... (Error handling and other helper functions)
+        function calculateAbsences(allDays, presentDays) {
+            return Array.from({length: 31}, (_, i) => i + 1)
+                .filter(day => 
+                    allDays.includes(day) && 
+                    !presentDays.includes(day.toString())
+                );
+        }
 
+        function showError(message, container) {
+            container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+        }
+
+        function handleError(error, container) {
+            console.error(error);
+            const message = error.message === 'API_ERROR' 
+                ? 'API Error - Check credentials and sheet sharing settings'
+                : 'Connection Error - Please check internet connection';
+            showError(message, container);
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </body>
 </html>
