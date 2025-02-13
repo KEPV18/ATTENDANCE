@@ -98,20 +98,14 @@
     </div>
 
     <script>
-        // JavaScript Code for Employee Attendance System
-
-const SHEET_ID = "YOUR_GOOGLE_SHEET_ID";
-const API_KEY = "YOUR_GOOGLE_API_KEY";
+        const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
+const API_KEY = "AIzaSyBIAZIlEL2OqSP4SGvUjcjZwL9p7aPVWuA";
 const MONTHLY_SALARY = 5500;
 const WORKING_DAYS = 26;
 
-        function createLoading() {
-    return `<div class="d-flex align-items-center text-primary">
-        <div class="spinner-border me-2"></div>
-        Loading attendance data...
-    </div>`;
-}
-
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("fetchButton").addEventListener("click", fetchAttendance);
+});
 
 async function fetchAttendance() {
     const employeeName = document.getElementById("employeeName").value.trim();
@@ -132,6 +126,21 @@ async function fetchAttendance() {
     } catch (error) {
         handleError(error, outputDiv);
     }
+}
+
+function createLoading() {
+    return `<div class="d-flex align-items-center text-primary">
+        <div class="spinner-border me-2"></div>
+        Analyzing attendance data...
+    </div>`;
+}
+
+function validateInput(name) {
+    if (!name) {
+        showError("Please enter employee name", document.getElementById("output"));
+        return false;
+    }
+    return true;
 }
 
 async function getMonthSheets(month) {
@@ -193,6 +202,17 @@ function checkLateTime(timeStr) {
     return hours > 8 || (hours === 8 && minutes > 5);
 }
 
+function showError(message, container) {
+    container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+}
+
+function handleError(error, container) {
+    console.error(error);
+    const message = error.message === 'API_ERROR' 
+        ? 'API Error - Check credentials and sheet sharing settings'
+        : 'Connection Error - Please check internet connection';
+    showError(message, container);
+}
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
