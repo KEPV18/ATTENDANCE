@@ -14,13 +14,13 @@ async function fetchAttendance() {
     try {
         const sheets = await getMonthSheets(month);
         if (!sheets.length) {
-            showError("لا توجد بيانات للشهر المحدد", outputDiv);
+            showError("No data found for selected month", outputDiv);
             return;
         }
         
         const { presentDays, allDays } = await processSheets(sheets, employeeName);
         if (!presentDays.length) {
-            showError("لا توجد سجلات لهذا الموظف في الشهر المحدد", outputDiv);
+            showError("No records found for this employee", outputDiv);
             return;
         }
         
@@ -34,13 +34,13 @@ async function fetchAttendance() {
 function createLoading() {
     return `<div class="d-flex align-items-center text-primary">
         <div class="spinner-border me-2"></div>
-        جاري تحليل بيانات الحضور...
+        Analyzing attendance data...
     </div>`;
 }
 
 function validateInput(name) {
     if (!name) {
-        showError("الرجاء إدخال اسم الموظف", document.getElementById("output"));
+        showError("Please enter employee name", document.getElementById("output"));
         return false;
     }
     return true;
@@ -60,7 +60,7 @@ async function getMonthSheets(month) {
             })
             .map(sheet => sheet.properties.title);
     } catch (error) {
-        throw new Error('فشل في جلب بيانات الجدول: ' + error.message);
+        throw new Error('Failed to fetch sheet data: ' + error.message);
     }
 }
 
@@ -74,13 +74,13 @@ async function processSheets(sheetNames, employeeName) {
                 `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
             );
             if (!response.ok) {
-                console.warn(`فشل في جلب بيانات الورقة: ${sheetName}`);
+                console.warn(`Failed to fetch sheet: ${sheetName}`);
                 continue;
             }
             
             const data = await response.json();
             if (!data.values) {
-                console.warn(`لا توجد بيانات في الورقة: ${sheetName}`);
+                console.warn(`No data in sheet: ${sheetName}`);
                 continue;
             }
 
@@ -90,7 +90,7 @@ async function processSheets(sheetNames, employeeName) {
 
             presentDays.push(processAttendanceRow(sheetName, employeeRow));
         } catch (error) {
-            console.error('خطأ في معالجة الورقة:', sheetName, error);
+            console.error('Error processing sheet:', sheetName, error);
         }
     }
     return { presentDays, allDays };
@@ -127,19 +127,19 @@ function displayReport(presentDays, allDays, month, container) {
             <!-- Summary Cards -->
             <div class="col-md-4">
                 <div class="result-card border-success">
-                    <h5>أيام الحضور</h5>
+                    <h5>Present Days</h5>
                     <div class="display-4">${presentDays.length}</div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="result-card border-danger">
-                    <h5>أيام الغياب</h5>
+                    <h5>Absent Days</h5>
                     <div class="display-4">${absentDays.length}</div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="result-card border-primary">
-                    <h5>الخصومات</h5>
+                    <h5>Deductions</h5>
                     <div class="display-4">${deductions.total}</div>
                 </div>
             </div>
@@ -149,15 +149,15 @@ function displayReport(presentDays, allDays, month, container) {
                 <div class="salary-box">
                     <div class="row">
                         <div class="col-md-4">
-                            <h5>الراتب اليومي</h5>
+                            <h5>Daily Salary</h5>
                             <p>$${dailySalary.toFixed(2)}</p>
                         </div>
                         <div class="col-md-4">
-                            <h5>أيام العمل الفعلية</h5>
+                            <h5>Net Working Days</h5>
                             <p>${presentDays.length - deductions.total}</p>
                         </div>
                         <div class="col-md-4">
-                            <h5>الراتب المتوقع</h5>
+                            <h5>Expected Salary</h5>
                             <p class="text-success">$${(dailySalary * (presentDays.length - deductions.total)).toFixed(2)}</p>
                         </div>
                     </div>
@@ -167,9 +167,9 @@ function displayReport(presentDays, allDays, month, container) {
             <!-- Detailed Sections -->
             <div class="col-12">
                 <div class="accordion" id="reportAccordion">
-                    ${createAccordionSection('present', 'أيام الحضور', presentDays)}
-                    ${createAccordionSection('absent', 'أيام الغياب', absentDays)}
-                    ${createAccordionSection('deductions', 'الخصومات', deductions.list)}
+                    ${createAccordionSection('present', 'Present Days', presentDays)}
+                    ${createAccordionSection('absent', 'Absent Days', absentDays)}
+                    ${createAccordionSection('deductions', 'Deductions', deductions.list)}
                 </div>
             </div>
         </div>
@@ -193,29 +193,19 @@ function createAccordionSection(type, title, items) {
                 <div class="accordion-body">
                     ${items.map(item => type === 'deductions' ? `
                         <div class="deduction-item">
-                            <strong>${formatArabicDate(item.day)}:</strong> ${item.details}
-                            <span class="badge bg-danger">${item.value} يوم</span>
+                            <strong>${item.day}:</strong> ${item.details}
+                            <span class="badge bg-danger">${item.value} day</span>
                         </div>
                     ` : `
                         <div class="d-flex justify-content-between py-2 border-bottom">
-                            <span>${formatArabicDate(item.day || item)}</span>
-                            ${item.isLate ? `<span class="text-danger">تأخر (${item.time})</span>` : ''}
+                            <span>${item.day || item}</span>
+                            ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
                         </div>
                     `).join('')}
                 </div>
             </div>
         </div>
     `;
-}
-
-function formatArabicDate(dateStr) {
-    const [day, month] = dateStr.split('/');
-    const months = [
-        'يناير', 'فبراير', 'مارس', 'أبريل',
-        'مايو', 'يونيو', 'يوليو', 'أغسطس',
-        'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-    ];
-    return `${day} ${months[parseInt(month)-1]}`;
 }
 
 function calculateDeductions(presentDays) {
@@ -227,7 +217,7 @@ function calculateDeductions(presentDays) {
             total += 0.5;
             list.push({
                 day: day.day,
-                details: `تأخر في الحضور (${day.time})`,
+                details: `Late arrival (${day.time})`,
                 value: 0.5
             });
         }
@@ -255,7 +245,7 @@ function showError(message, container) {
 function handleError(error, container) {
     console.error(error);
     const message = error.message === 'API_ERROR' 
-        ? 'خطأ في الاتصال بالخادم - الرجاء التحقق من إعدادات المفتاح والجدول'
-        : `خطأ في الاتصال: ${error.message}`;
+        ? 'API Error - Check credentials and sheet sharing settings'
+        : `Connection Error: ${error.message}`;
     showError(message, container);
 }
