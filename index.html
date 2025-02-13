@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Attendance System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -33,21 +34,29 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
-        .result-card {
-            border-left: 4px solid;
-            padding: 1.25rem;
-            margin: 1rem 0;
-        }
-        .deduction-item {
-            border-left: 3px solid var(--danger-color);
-            padding-left: 1rem;
-            margin: 0.5rem 0;
-        }
-        .salary-box {
-            background: #e9f5e9;
-            border-radius: 8px;
+        .summary-card {
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 12px;
             padding: 1.5rem;
-            margin-top: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .summary-card:hover {
+            transform: scale(1.05);
+        }
+        .details-card {
+            background: #fff;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .accordion-button:not(.collapsed) {
             background-color: rgba(52, 152, 219, 0.1);
@@ -84,11 +93,11 @@
                 </div>
             </div>
         </div>
+
         <div id="output"></div>
     </div>
 
     <script>
-        // دالة لإنشاء تقرير الحضور والغياب
         function fetchAttendance() {
             const employeeName = document.getElementById('employeeName').value.trim();
             const month = parseInt(document.getElementById('month').value);
@@ -98,39 +107,43 @@
                 return;
             }
 
-            // تحديد نطاق الشهر (من 26 الشهر السابق إلى 25 الشهر الحالي)
+            // Simulate attendance data
+            const attendanceData = simulateAttendanceData(employeeName, month);
+
+            // Display summary and details
+            displayReport(attendanceData);
+        }
+
+        function simulateAttendanceData(employeeName, month) {
             const currentYear = new Date().getFullYear();
             const startMonth = month > 1 ? month - 1 : 12;
             const startYear = month > 1 ? currentYear : currentYear - 1;
             const startDate = new Date(startYear, startMonth - 1, 26);
             const endDate = new Date(currentYear, month - 1, 25);
 
-            // محاكاة بيانات الموظف (يمكن استبدالها بالبيانات الفعلية من ملف Excel أو قاعدة بيانات)
-            const attendanceData = simulateAttendanceData(employeeName, startDate, endDate);
-
-            // عرض النتائج
-            displayReport(attendanceData);
-        }
-
-        // دالة لمحاكاة بيانات الحضور (يمكن استبدالها بالبيانات الفعلية)
-        function simulateAttendanceData(employeeName, startDate, endDate) {
             const data = [];
             let currentDate = new Date(startDate);
+            let presentDays = 0, absentDays = 0, totalDeductions = 0;
 
             while (currentDate <= endDate) {
                 const dateStr = currentDate.toISOString().split('T')[0];
-                const checkInTime = getRandomTime("08:00", "10:00"); // وقت الحضور العشوائي
-                const earlyDepartureTime = Math.random() > 0.7 ? getRandomTime("11:00", "14:30") : null; // وقت المغادرة المبكرة
+                const checkInTime = getRandomTime("08:00", "10:00");
+                const earlyDepartureTime = Math.random() > 0.7 ? getRandomTime("11:00", "14:30") : null;
 
                 let deduction = 0;
                 if (earlyDepartureTime) {
                     const departureTime = parseTime(earlyDepartureTime);
                     if (departureTime < parseTime("11:00")) {
-                        deduction = 1; // يوم خصم كامل
+                        deduction = 1;
                     } else if (departureTime < parseTime("14:30")) {
-                        deduction = 0.5; // نصف يوم خصم
+                        deduction = 0.5;
                     }
                 }
+
+                if (!earlyDepartureTime) presentDays++;
+                else absentDays++;
+
+                totalDeductions += deduction;
 
                 data.push({
                     date: dateStr,
@@ -142,43 +155,99 @@
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            return data;
+            const dailySalary = 211.54;
+            const netWorkingDays = presentDays - totalDeductions;
+            const expectedSalary = netWorkingDays * dailySalary;
+
+            return {
+                summary: {
+                    presentDays: presentDays,
+                    absentDays: absentDays,
+                    totalDeductions: totalDeductions.toFixed(1),
+                    dailySalary: dailySalary.toFixed(2),
+                    netWorkingDays: netWorkingDays.toFixed(1),
+                    expectedSalary: expectedSalary.toFixed(2)
+                },
+                details: data
+            };
         }
 
-        // دالة لعرض التقرير
         function displayReport(data) {
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = "";
 
-            if (data.length === 0) {
-                outputDiv.innerHTML = "<p>No attendance data found for the selected period.</p>";
-                return;
-            }
-
-            const totalDeductions = data.reduce((sum, record) => sum + record.deduction, 0);
-
-            let html = `
-                <div class="result-card">
-                    <h3>Attendance Report</h3>
-                    <p><strong>Total Deductions:</strong> ${totalDeductions.toFixed(1)} days</p>
+            const summaryHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="summary-card animate__animated animate__fadeInUp">
+                            <h4>Present Days</h4>
+                            <p>${data.summary.presentDays}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card animate__animated animate__fadeInUp">
+                            <h4>Absent Days</h4>
+                            <p>${data.summary.absentDays}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card animate__animated animate__fadeInUp">
+                            <h4>Deductions</h4>
+                            <p>${data.summary.totalDeductions} days</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="summary-card animate__animated animate__fadeInUp">
+                            <h4>Daily Salary</h4>
+                            <p>$${data.summary.dailySalary}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="summary-card animate__animated animate__fadeInUp">
+                            <h4>Net Working Days</h4>
+                            <p>${data.summary.netWorkingDays}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="summary-card animate__animated animate__fadeInUp">
+                            <h4>Expected Salary</h4>
+                            <p>$${data.summary.expectedSalary}</p>
+                        </div>
+                    </div>
                 </div>
             `;
 
-            data.forEach(record => {
-                html += `
-                    <div class="result-card">
-                        <p><strong>Date:</strong> ${record.date}</p>
-                        <p><strong>Check-In Time:</strong> ${record.checkInTime}</p>
-                        <p><strong>Early Departure Time:</strong> ${record.earlyDepartureTime || "None"}</p>
-                        <p><strong>Deduction:</strong> ${record.deduction} day(s)</p>
-                    </div>
-                `;
-            });
+            const detailsHTML = `
+                <div class="details-card" id="presentDetails">
+                    <h4>Present Days (${data.summary.presentDays})</h4>
+                    ${data.details.filter(d => !d.earlyDepartureTime).map(d => `<p>${d.date} - Check-In: ${d.checkInTime}</p>`).join("")}
+                </div>
+                <div class="details-card" id="absentDetails">
+                    <h4>Absent Days (${data.summary.absentDays})</h4>
+                    ${data.details.filter(d => d.earlyDepartureTime).map(d => `<p>${d.date} - Early Departure: ${d.earlyDepartureTime}</p>`).join("")}
+                </div>
+                <div class="details-card" id="deductionDetails">
+                    <h4>Deductions (${data.summary.totalDeductions})</h4>
+                    ${data.details.filter(d => d.deduction > 0).map(d => `<p>${d.date} - Deduction: ${d.deduction} day(s)</p>`).join("")}
+                </div>
+            `;
 
-            outputDiv.innerHTML = html;
+            outputDiv.innerHTML = summaryHTML + detailsHTML;
+
+            // Add click event listeners to toggle details
+            document.querySelectorAll('.summary-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const targetId = card.querySelector('h4').innerText.split(" ")[0].toLowerCase() + "Details";
+                    const detailsCard = document.getElementById(targetId);
+                    detailsCard.style.display = detailsCard.style.display === "none" ? "block" : "none";
+                });
+            });
         }
 
-        // دوال مساعدة
         function getRandomTime(startTime, endTime) {
             const start = parseTime(startTime);
             const end = parseTime(endTime);
