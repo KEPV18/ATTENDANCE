@@ -101,16 +101,16 @@
 
     <script>
         // Simulated data for demonstration purposes
-        const sheetsData = {
-            "Sheet1": { date: "2023-01-10", checkIn: "08:30", checkOut: "17:00", isFriday: false },
-            "Sheet2": { date: "2023-01-11", checkIn: "09:15", checkOut: "16:45", isFriday: false },
-            "Sheet3": { date: "2023-01-12", checkIn: "08:00", checkOut: "15:30", isFriday: true },
-            "Sheet4": { date: "2023-01-13", checkIn: "08:45", checkOut: "17:15", isFriday: false },
-            "Sheet5": { date: "2023-02-10", checkIn: "08:30", checkOut: "17:00", isFriday: false },
-            "Sheet6": { date: "2023-02-11", checkIn: "09:15", checkOut: "16:45", isFriday: false },
-            "Sheet7": { date: "2023-02-12", checkIn: "08:00", checkOut: "15:30", isFriday: true },
-            "Sheet8": { date: "2023-02-13", checkIn: "08:45", checkOut: "17:15", isFriday: false },
-        };
+        const sheetsData = [
+            { date: "2023-01-10", checkIn: "08:30", checkOut: "17:00", isFriday: false },
+            { date: "2023-01-11", checkIn: "09:15", checkOut: "16:45", isFriday: false },
+            { date: "2023-01-12", checkIn: "08:00", checkOut: "15:30", isFriday: true },
+            { date: "2023-01-13", checkIn: "08:45", checkOut: "17:15", isFriday: false },
+            { date: "2023-02-10", checkIn: "08:30", checkOut: "17:00", isFriday: false },
+            { date: "2023-02-11", checkIn: "09:15", checkOut: "16:45", isFriday: false },
+            { date: "2023-02-12", checkIn: "08:00", checkOut: "15:30", isFriday: true },
+            { date: "2023-02-13", checkIn: "08:45", checkOut: "17:15", isFriday: false },
+        ];
 
         function fetchAttendance() {
             const employeeName = document.getElementById('employeeName').value.trim();
@@ -129,7 +129,7 @@
             const endDate = new Date(currentYear, month, 25);
 
             // Filter data within the selected date range
-            const filteredData = Object.values(sheetsData).filter(sheet => {
+            const filteredData = sheetsData.filter(sheet => {
                 const sheetDate = new Date(sheet.date);
                 return sheetDate >= startDate && sheetDate <= endDate;
             });
