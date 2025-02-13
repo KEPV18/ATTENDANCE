@@ -76,18 +76,18 @@
                 </div>
                 <div class="col-md-4">
                     <select id="month" class="form-select form-select-lg">
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
+                        <option value="1">January (26 Dec - 25 Jan)</option>
+                        <option value="2">February (26 Jan - 25 Feb)</option>
+                        <option value="3">March (26 Feb - 25 Mar)</option>
+                        <option value="4">April (26 Mar - 25 Apr)</option>
+                        <option value="5">May (26 Apr - 25 May)</option>
+                        <option value="6">June (26 May - 25 Jun)</option>
+                        <option value="7">July (26 Jun - 25 Jul)</option>
+                        <option value="8">August (26 Jul - 25 Aug)</option>
+                        <option value="9">September (26 Aug - 25 Sep)</option>
+                        <option value="10">October (26 Sep - 25 Oct)</option>
+                        <option value="11">November (26 Oct - 25 Nov)</option>
+                        <option value="12">December (26 Nov - 25 Dec)</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -100,6 +100,18 @@
     </div>
 
     <script>
+        // Simulated data for demonstration purposes
+        const sheetsData = {
+            "Sheet1": { date: "2023-01-10", checkIn: "08:30", checkOut: "17:00", isFriday: false },
+            "Sheet2": { date: "2023-01-11", checkIn: "09:15", checkOut: "16:45", isFriday: false },
+            "Sheet3": { date: "2023-01-12", checkIn: "08:00", checkOut: "15:30", isFriday: true },
+            "Sheet4": { date: "2023-01-13", checkIn: "08:45", checkOut: "17:15", isFriday: false },
+            "Sheet5": { date: "2023-02-10", checkIn: "08:30", checkOut: "17:00", isFriday: false },
+            "Sheet6": { date: "2023-02-11", checkIn: "09:15", checkOut: "16:45", isFriday: false },
+            "Sheet7": { date: "2023-02-12", checkIn: "08:00", checkOut: "15:30", isFriday: true },
+            "Sheet8": { date: "2023-02-13", checkIn: "08:45", checkOut: "17:15", isFriday: false },
+        };
+
         function fetchAttendance() {
             const employeeName = document.getElementById('employeeName').value.trim();
             const month = parseInt(document.getElementById('month').value);
@@ -109,75 +121,52 @@
                 return;
             }
 
-            // Simulate attendance data
-            const attendanceData = simulateAttendanceData(employeeName, month);
-
-            // Display summary and details
-            displayReport(attendanceData);
-        }
-
-        function simulateAttendanceData(employeeName, month) {
+            // Define the date range based on the selected month
             const currentYear = new Date().getFullYear();
             const startMonth = month > 1 ? month - 1 : 12;
             const startYear = month > 1 ? currentYear : currentYear - 1;
             const startDate = new Date(startYear, startMonth - 1, 26);
             const endDate = new Date(currentYear, month, 25);
 
-            const data = [];
-            let currentDate = new Date(startDate);
+            // Filter data within the selected date range
+            const filteredData = Object.values(sheetsData).filter(sheet => {
+                const sheetDate = new Date(sheet.date);
+                return sheetDate >= startDate && sheetDate <= endDate;
+            });
+
+            // Calculate attendance metrics
             let presentDays = 0, absentDays = 0, totalDeductions = 0, fridaysWorked = 0;
 
-            while (currentDate <= endDate) {
-                const dateStr = currentDate.toISOString().split('T')[0];
-                const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
-                const isFriday = dayOfWeek === 5; // Friday
-
-                const checkInTime = getRandomTime("08:00", "10:00");
-                const checkOutTime = Math.random() > 0.7 ? getRandomTime("14:00", "16:00") : null;
-                const violation = Math.random() > 0.8 ? "Late Arrival" : null;
-
-                let deduction = 0;
-                if (checkInTime > "09:00") deduction += 0.5; // Late arrival
-                if (checkOutTime && checkOutTime < "15:00") deduction += 0.5; // Early departure
-
-                if (checkInTime) presentDays++;
-                else absentDays++;
-
-                if (isFriday && checkInTime) {
-                    fridaysWorked++;
+            filteredData.forEach(sheet => {
+                if (sheet.checkIn) {
+                    presentDays++;
+                    if (new Date(sheet.date).getDay() === 5) { // Friday
+                        fridaysWorked++;
+                    }
+                    if (sheet.checkIn > "09:00") totalDeductions += 0.5; // Late arrival
+                    if (sheet.checkOut && sheet.checkOut < "15:00") totalDeductions += 0.5; // Early departure
+                } else {
+                    absentDays++;
                 }
+            });
 
-                totalDeductions += deduction;
-
-                data.push({
-                    date: dateStr,
-                    checkInTime: checkInTime,
-                    checkOutTime: checkOutTime,
-                    deduction: deduction,
-                    violation: violation,
-                    isFriday: isFriday
-                });
-
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-
-            const workingDays = data.filter(d => ![0, 5].includes(new Date(d.date).getDay())).length; // Exclude weekends
             const dailySalary = 211.54;
             const netWorkingDays = presentDays - totalDeductions;
             const expectedSalary = netWorkingDays * dailySalary;
 
-            return {
+            // Display summary and details
+            displayReport({
                 summary: {
-                    presentDays: presentDays,
-                    absentDays: absentDays,
+                    presentDays,
+                    absentDays,
                     totalDeductions: totalDeductions.toFixed(1),
                     dailySalary: dailySalary.toFixed(2),
                     netWorkingDays: netWorkingDays.toFixed(1),
                     expectedSalary: expectedSalary.toFixed(2),
-                    fridaysWorked: fridaysWorked
+                    fridaysWorked
                 },
-                details: data
-            };
+                details: filteredData
+            });
         }
 
         function displayReport(data) {
@@ -240,19 +229,19 @@
             const detailsHTML = `
                 <div class="details-card" id="presentDetails">
                     <h4>Present Days (${data.summary.presentDays})</h4>
-                    ${data.details.filter(d => d.checkInTime).map(d => `<p>${d.date} - Check-In: ${formatTime(d.checkInTime)}</p>`).join("")}
+                    ${data.details.filter(d => d.checkIn).map(d => `<p>${d.date} - Check-In: ${d.checkIn}, Check-Out: ${d.checkOut || "N/A"}</p>`).join("")}
                 </div>
                 <div class="details-card" id="absentDetails">
                     <h4>Absent Days (${data.summary.absentDays})</h4>
-                    ${data.details.filter(d => !d.checkInTime).map(d => `<p>${d.date}</p>`).join("")}
+                    ${data.details.filter(d => !d.checkIn).map(d => `<p>${d.date}</p>`).join("")}
                 </div>
                 <div class="details-card" id="deductionDetails">
                     <h4>Deductions (${data.summary.totalDeductions})</h4>
-                    ${data.details.filter(d => d.deduction > 0).map(d => `<p>${d.date} - Deduction: ${d.deduction} day(s) - Reason: ${d.violation || "N/A"}</p>`).join("")}
+                    ${data.details.filter(d => d.checkIn > "09:00" || (d.checkOut && d.checkOut < "15:00")).map(d => `<p>${d.date} - Deduction: ${d.checkIn > "09:00" ? "Late Arrival" : "Early Departure"}</p>`).join("")}
                 </div>
                 <div class="details-card" id="fridayDetails">
                     <h4>Fridays Worked (${data.summary.fridaysWorked})</h4>
-                    ${data.details.filter(d => d.isFriday && d.checkInTime).map(d => `<p>${d.date} - Friday Bonus</p>`).join("")}
+                    ${data.details.filter(d => new Date(d.date).getDay() === 5 && d.checkIn).map(d => `<p>${d.date} - Friday Bonus</p>`).join("")}
                 </div>
             `;
 
@@ -268,31 +257,6 @@
                     }
                 });
             });
-        }
-
-        function getRandomTime(startTime, endTime) {
-            const start = parseTime(startTime);
-            const end = parseTime(endTime);
-            const randomMinutes = Math.floor(Math.random() * (end - start));
-            const randomTime = new Date(start.getTime() + randomMinutes * 60000);
-            return formatTime(randomTime);
-        }
-
-        function parseTime(timeStr) {
-            const [hours, minutes] = timeStr.split(":").map(Number);
-            return new Date(0, 0, 0, hours, minutes);
-        }
-
-        function formatTime(date) {
-            // Ensure the input is a Date object
-            if (!(date instanceof Date)) {
-                date = new Date(`1970-01-01T${date}`);
-            }
-            const hours = date.getHours();
-            const minutes = String(date.getMinutes()).padStart(2, "0");
-            const period = hours >= 12 ? "PM" : "AM";
-            const formattedHours = hours % 12 || 12;
-            return `${formattedHours}:${minutes} ${period}`;
         }
     </script>
 </body>
