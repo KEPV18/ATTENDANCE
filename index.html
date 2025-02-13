@@ -148,34 +148,34 @@
                 .map(sheet => sheet.properties.title);
         }
 
-        async function processSheets(sheetNames, employeeName) {
-            let presentDays = [];
-            const allDays = [];
+    async function processSheets(sheetNames, employeeName) {
+    let presentDays = [];
+    const allDays = [];
+    
+    for (const sheetName of sheetNames) {
+        try {
+            const response = await fetch(
+                `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
+            );
+            if (!response.ok) continue;
             
-            for (const sheetName of sheetNames) {
-                try {
-                    const response = await fetch(
-                        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
-                    );
-                    if (!response.ok) continue;
-                    
-                    const data = await response.json();
-                    if (!data.values) continue;
+            const data = await response.json();
+            if (!data.values) continue;
 
-                    const day = sheetName.split('/')[0];
-                    allDays.push(parseInt(day));
-                    
-                    const employeeRow = data.values.find(row => row[3] === employeeName);
-                    if (!employeeRow) continue;
+            // هنا التغيير: نمرر sheetName بدل day
+            allDays.push(sheetName);
+            
+            const employeeRow = data.values.find(row => row[3] === employeeName);
+            if (!employeeRow) continue;
 
-                    presentDays.push(processAttendanceRow(day, employeeRow));
-                } catch (error) {
-                    console.error('Sheet processing error:', error);
-                }
-            }
-            return { presentDays, allDays };
+            // نمرر sheetName كامل
+            presentDays.push(processAttendanceRow(sheetName, employeeRow));
+        } catch (error) {
+            console.error('Sheet processing error:', error);
         }
-
+    }
+    return { presentDays, allDays };
+}
         function processAttendanceRow(day, row) {
             return {
                 day,
@@ -315,7 +315,8 @@
         }
 
         function calculateAbsences(allDays, presentDays) {
-            return Array.from({length: 31}, (_, i) => i + 1)
+    return allDays.filter(day => !presentDays.includes(day));
+}
                 .filter(day => 
                     allDays.includes(day) && 
                     !presentDays.includes(day.toString())
