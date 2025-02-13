@@ -124,10 +124,10 @@
 
         // Helper functions
         function createLoading() {
-            return <div class="d-flex align-items-center text-primary">
+            return `<div class="d-flex align-items-center text-primary">
                 <div class="spinner-border me-2"></div>
                 Analyzing attendance data...
-            </div>;
+            </div>`;
         }
 
         function validateInput(name) {
@@ -139,7 +139,7 @@
         }
 
         async function getMonthSheets(month) {
-            const response = await fetch(https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY});
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
             if (!response.ok) throw new Error('API_ERROR');
             
             const data = await response.json();
@@ -155,7 +155,7 @@
             for (const sheetName of sheetNames) {
                 try {
                     const response = await fetch(
-                        https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}
+                        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
                     );
                     if (!response.ok) continue;
                     
@@ -202,7 +202,7 @@
             const deductions = calculateDeductions(presentDays);
             const absentDays = calculateAbsences(allDays, presentDays.map(p => p.day));
             
-            container.innerHTML = 
+            container.innerHTML = `
                 <div class="row g-4">
                     <!-- Summary Cards -->
                     <div class="col-md-4">
@@ -253,11 +253,11 @@
                         </div>
                     </div>
                 </div>
-            ;
+            `;
         }
 
         function createAccordionSection(type, title, items) {
-            return 
+            return `
                 <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button ${type !== 'present' ? 'collapsed' : ''}" 
@@ -271,21 +271,21 @@
                          class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
                          data-bs-parent="#reportAccordion">
                         <div class="accordion-body">
-                            ${items.length ? items.map(item => type === 'deductions' ? 
+                            ${items.length ? items.map(item => type === 'deductions' ? `
                                 <div class="deduction-item">
                                     <strong>Day ${item.day}:</strong> ${item.details}
                                     <span class="badge bg-danger">${item.value} day</span>
                                 </div>
-                             : 
+                            ` : `
                                 <div class="d-flex justify-content-between py-2 border-bottom">
                                     <span>Day ${item.day || item}</span>
-                                    ${item.isLate ? <span class="text-danger">Late (${item.time})</span> : ''}
+                                    ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
                                 </div>
-                            ).join('') : 'No records found'}
+                            `).join('') : 'No records found'}
                         </div>
                     </div>
                 </div>
-            ;
+            `;
         }
 
         function calculateDeductions(presentDays) {
@@ -297,7 +297,7 @@
                     total += 0.5;
                     list.push({
                         day: day.day,
-                        details: Late arrival (${day.time}),
+                        details: `Late arrival (${day.time})`,
                         value: 0.5
                     });
                 }
@@ -323,7 +323,7 @@
         }
 
         function showError(message, container) {
-            container.innerHTML = <div class="alert alert-danger">${message}</div>;
+            container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
         }
 
         function handleError(error, container) {
