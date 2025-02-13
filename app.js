@@ -38,6 +38,9 @@ function updateDashboard(data) {
 }
 
 function showDetails(type, details) {
+    console.log("Type:", type);
+    console.log("Details:", details);
+
     const modalContent = document.getElementById('modalContent');
     const parsedDetails = JSON.parse(details); // تحويل النص إلى كائن
     const items = parsedDetails.map(d => 
