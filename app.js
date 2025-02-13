@@ -3,6 +3,7 @@ const API_KEY = "AIzaSyBIAZIlEL2OqSP4SGvUjcjZwL9p7aPVWuA";
 const MONTHLY_SALARY = 5500;
 const WORKING_DAYS = 26;
 
+// تعريف الدالة fetchAttendance بشكل صحيح
 async function fetchAttendance() {
     const employeeName = document.getElementById("employeeName").value.trim();
     const month = document.getElementById("month").value;
