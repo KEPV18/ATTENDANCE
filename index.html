@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Attendance System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="your-favicon-url.png">
+
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -102,6 +104,14 @@ const SHEET_ID = "YOUR_GOOGLE_SHEET_ID";
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 const MONTHLY_SALARY = 5500;
 const WORKING_DAYS = 26;
+
+        function createLoading() {
+    return `<div class="d-flex align-items-center text-primary">
+        <div class="spinner-border me-2"></div>
+        Loading attendance data...
+    </div>`;
+}
+
 
 async function fetchAttendance() {
     const employeeName = document.getElementById("employeeName").value.trim();
