@@ -512,6 +512,11 @@
     const deductions = [];
     const ignoreList = ["(P) GT", "(T) GT", "T1", "T2", "T3", "E", "0", "P", "T"]; // Values to ignore
 
+    // Define deductionQ, deductionO, and deductionR
+    const deductionQ = employeeRow[16]?.trim() || ""; // Column Q
+    const deductionO = employeeRow[14]?.trim() || ""; // Column O
+    const deductionR = employeeRow[17]?.trim() || ""; // Column R
+
     if (deductionQ && !ignoreList.includes(deductionQ) && !deductionQ.match(/\d{1,2}:\d{2}/)) {
         deductions.push({ column: "Q", reason: deductionQ });
     }
