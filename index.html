@@ -481,15 +481,20 @@
     const timeM = employeeRow[12]?.trim() || ""; // Column M
     const timeO = employeeRow[14]?.trim() || ""; // Column O
     const timeP = employeeRow[15]?.trim() || ""; // Column P
-    
+
+    // Check columns Q, O, and R for deductions
+    const deductionQ = employeeRow[16]?.trim() || ""; // Column Q
+    const deductionO = employeeRow[14]?.trim() || ""; // Column O
+    const deductionR = employeeRow[17]?.trim() || ""; // Column R
+
     // Check if there's a time in any of the columns
     const hasTimeM = timeM.match(/\d{1,2}:\d{2}/) && timeM !== "0"; // Ensure timeM is not "0"
     const hasTimeO = timeO.match(/\d{1,2}:\d{2}/) && timeO !== "0"; // Ensure timeO is not "0"
     const hasTimeP = timeP.match(/\d{1,2}:\d{2}/) && timeP !== "0"; // Ensure timeP is not "0"
-    
+
     // Use the time that exists (if any)
     const time = hasTimeM ? timeM : hasTimeO ? timeO : hasTimeP ? timeP : "";
-    
+
     let attendanceStatus;
     // If there's time in any column, mark as present
     if (hasTimeM || hasTimeO || hasTimeP) {
@@ -500,11 +505,17 @@
         attendanceStatus = 'absent';
     }
 
+    // Check for deductions in columns Q, O, and R
+    const deductions = [];
+    if (deductionQ) deductions.push({ column: "Q", reason: deductionQ });
+    if (deductionO) deductions.push({ column: "O", reason: deductionO });
+    if (deductionR) deductions.push({ column: "R", reason: deductionR });
+
     return {
         day: formatDate(dateInfo.day, dateInfo.month),
         status: timeM || timeO || timeP || "", // Store the actual value for reference
         time: time,
-        deduction: employeeRow[17]?.trim() || "",
+        deductions: deductions, // Store deductions with reasons
         isLate: checkLateTime(time),
         attendanceStatus: attendanceStatus
     };
@@ -624,84 +635,89 @@
             `;
         }
 
-        function createAccordionSection(type, title, items) {
-            return `
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button ${type !== 'present' ? 'collapsed' : ''}" 
-                                type="button" 
-                                data-bs-toggle="collapse" 
-                                data-bs-target="#${type}Section">
-                            ${title} (${items.length})
-                        </button>
-                    </h2>
-                    <div id="${type}Section" 
-                         class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
-                         data-bs-parent="#reportAccordion">
-                        <div class="accordion-body">
-                            ${items.length ? items.map(item => {
-                                if (type === 'deductions') {
-                                    return `
-                                        <div class="deduction-item">
-                                            <strong>Day ${item.day}:</strong> ${item.details}
-                                            <span class="badge bg-danger">${item.value} day</span>
-                                        </div>
-                                    `;
-                                } else if (type === 'unaccounted') {
-                                    return `
-                                        <div class="d-flex justify-content-between py-2 border-bottom">
-                                            <span>Day ${item.day}</span>
-                                            <span class="text-warning">
-                                                Status: ${item.status || 'Unknown'}
-                                                <br>
-                                                <small>${item.details}</small>
-                                            </span>
-                                        </div>
-                                    `;
-                                } else {
-                                    return `
-                                        <div class="d-flex justify-content-between py-2 border-bottom">
-                                            <span>Day ${item.day}</span>
-                                            <span class="${type === 'absent' ? 'text-danger' : ''}">
-                                                ${type === 'absent' ? 'Absent' : ''}
-                                                ${item.time ? `(${item.time})` : ''}
-                                                ${item.isLate ? '<br><small class="text-danger">Late</small>' : ''}
-                                            </span>
-                                        </div>
-                                    `;
-                                }
-                            }).join('') : 'No records found'}
-                        </div>
-                    </div>
+       function createAccordionSection(type, title, items) {
+    return `
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button ${type !== 'present' ? 'collapsed' : ''}" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#${type}Section">
+                    ${title} (${items.length})
+                </button>
+            </h2>
+            <div id="${type}Section" 
+                 class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
+                 data-bs-parent="#reportAccordion">
+                <div class="accordion-body">
+                    ${items.length ? items.map(item => {
+                        if (type === 'deductions') {
+                            return `
+                                <div class="deduction-item">
+                                    <strong>Day ${item.day}:</strong> ${item.details}
+                                    <span class="badge bg-danger">${item.value} day</span>
+                                </div>
+                            `;
+                        } else if (type === 'unaccounted') {
+                            return `
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span>Day ${item.day}</span>
+                                    <span class="text-warning">
+                                        Status: ${item.status || 'Unknown'}
+                                        <br>
+                                        <small>${item.details}</small>
+                                    </span>
+                                </div>
+                            `;
+                        } else {
+                            return `
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span>Day ${item.day}</span>
+                                    <span class="${type === 'absent' ? 'text-danger' : ''}">
+                                        ${type === 'absent' ? 'Absent' : ''}
+                                        ${item.time ? `(${item.time})` : ''}
+                                        ${item.isLate ? '<br><small class="text-danger">Late</small>' : ''}
+                                    </span>
+                                </div>
+                            `;
+                        }
+                    }).join('') : 'No records found'}
                 </div>
-            `;
-        }
+            </div>
+        </div>
+    `;
+}
 
         function calculateDeductions(presentDays) {
-            let total = 0;
-            const list = [];
-            
-            presentDays.forEach(day => {
-                if (day.isLate) {
-                    total += 0.5;
-                    list.push({
-                        day: day.day,
-                        details: `Late arrival (${day.time})`,
-                        value: 0.5
-                    });
-                }
-                if (day.deduction) {
-                    total += 1;
-                    list.push({
-                        day: day.day,
-                        details: day.deduction,
-                        value: 1
-                    });
-                }
+    let total = 0;
+    const list = [];
+    
+    presentDays.forEach(day => {
+        // Check for late arrival
+        if (day.isLate) {
+            total += 0.5;
+            list.push({
+                day: day.day,
+                details: `Late arrival (${day.time})`,
+                value: 0.5
             });
-            
-            return { total, list };
         }
+
+        // Check for deductions in columns Q, O, and R
+        if (day.deductions && day.deductions.length > 0) {
+            day.deductions.forEach(deduction => {
+                total += 0.5; // Half day deduction for each deduction
+                list.push({
+                    day: day.day,
+                    details: `Deduction (${deduction.column}): ${deduction.reason}`,
+                    value: 0.5
+                });
+            });
+        }
+    });
+    
+    return { total, list };
+}
 
         function calculateAbsences(allDays, presentDays) {
             return allDays
