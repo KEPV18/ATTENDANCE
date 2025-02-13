@@ -271,17 +271,17 @@
                          class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
                          data-bs-parent="#reportAccordion">
                         <div class="accordion-body">
-                            ${items.length ? items.map(item => type === 'deductions' ? `
-                                <div class="deduction-item">
-                                    <strong>Day ${item.day}:</strong> ${item.details}
-                                    <span class="badge bg-danger">${item.value} day</span>
-                                </div>
-                            ` : `
-                                <div class="d-flex justify-content-between py-2 border-bottom">
-                                    <span>Day ${item.day || item}</span>
-                                    ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
-                                </div>
-                            `).join('') : 'No records found'}
+                          ${items.map(item => type === 'deductions' ? `
+    <div class="deduction-item">
+        <strong>${item.day}:</strong> ${item.details}
+        <span class="badge bg-danger">${item.value} day</span>
+    </div>
+` : `
+    <div class="d-flex justify-content-between py-2 border-bottom">
+        <span>${item.day || item}</span>
+        ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
+    </div>
+`).join('')}
                         </div>
                     </div>
                 </div>
