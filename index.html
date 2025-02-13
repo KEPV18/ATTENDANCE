@@ -7,57 +7,279 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --danger-color: #e74c3c;
-            --background: #f8f9fa;
+            --primary-color: #4285f4;
+            --secondary-color: #1a73e8;
+            --success-color: #34a853;
+            --danger-color: #ea4335;
+            --dark-bg: #1a1a1a;
+            --dark-card: #2d2d2d;
+            --dark-input: #333333;
+            --text-light: #ffffff;
+            --text-gray: #b0b0b0;
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            --glow: 0 0 20px rgba(66, 133, 244, 0.15);
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background);
-            color: var(--primary-color);
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #000000 100%);
+            color: var(--text-light);
             padding: 2rem 0;
+            min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
         .container {
             max-width: 1200px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 2rem;
+            background: var(--dark-card);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 2.5rem;
             margin: 0 auto;
+            animation: fadeIn 0.5s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: var(--glow); }
+            50% { box-shadow: 0 0 30px rgba(66, 133, 244, 0.3); }
+            100% { box-shadow: var(--glow); }
+        }
+
+        h1 {
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 1rem;
+            text-align: center;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            animation: expandWidth 0.5s ease-out;
+        }
+
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 100px; }
         }
 
         .input-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            background: var(--dark-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .form-control, .form-select {
+            background-color: var(--dark-input);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+            background-color: rgba(66, 133, 244, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: glowPulse 2s infinite;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
         }
 
         .result-card {
-            border-left: 4px solid;
-            padding: 1.25rem;
+            background: var(--dark-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
             margin: 1rem 0;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
         }
 
-        .deduction-item {
-            border-left: 3px solid var(--danger-color);
-            padding-left: 1rem;
-            margin: 0.5rem 0;
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--glow);
+        }
+
+        .border-success {
+            border-left: 4px solid var(--success-color);
+            background: linear-gradient(to right, rgba(52, 168, 83, 0.1), var(--dark-card));
+        }
+
+        .border-danger {
+            border-left: 4px solid var(--danger-color);
+            background: linear-gradient(to right, rgba(234, 67, 53, 0.1), var(--dark-card));
+        }
+
+        .border-primary {
+            border-left: 4px solid var(--primary-color);
+            background: linear-gradient(to right, rgba(66, 133, 244, 0.1), var(--dark-card));
         }
 
         .salary-box {
-            background: #e9f5e9;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), var(--dark-card));
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .accordion-button {
+            background: var(--dark-card);
+            color: var(--text-light);
+            border: none;
+            padding: 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .accordion-button:not(.collapsed) {
-            background-color: rgba(52, 152, 219, 0.1);
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .accordion-body {
+            background: var(--dark-card);
+            color: var(--text-light);
+        }
+
+        .alert {
+            background: var(--dark-card);
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+
+        .display-4 {
+            font-weight: 600;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(66, 133, 244, 0.3);
+        }
+
+        .deduction-item {
+            background: var(--dark-card);
+            border-left: 3px solid var(--danger-color);
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .deduction-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--glow);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        /* Loading Animation */
+        .spinner-border {
+            animation: spin 1s linear infinite, glowPulse 2s infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* تحديث القائمة المنسدلة */
+        .form-select {
+            background-color: var(--dark-input);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            color: var(--text-light);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-select option {
+            background-color: var(--dark-card);
+            color: var(--text-light);
+            padding: 12px;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+            background-color: var(--dark-input);
+        }
+
+        /* تحسين حالة التحويم */
+        .form-select:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--glow);
+        }
+
+        /* تحسين القائمة المنسدلة عند فتحها */
+        .form-select optgroup {
+            background-color: var(--dark-card);
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        /* تحسين العناصر عند التحويم */
+        .form-select option:hover {
+            background-color: var(--primary-color);
+            color: white;
         }
     </style>
 </head>
@@ -72,18 +294,7 @@
                 </div>
                 <div class="col-md-4">
                     <select id="month" class="form-select form-select-lg">
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
+                        <option value="">Select Period</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -101,22 +312,118 @@
         const MONTHLY_SALARY = 5500;
         const WORKING_DAYS = 26;
 
+        async function initializePeriods() {
+            try {
+                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
+                if (!response.ok) throw new Error('API_ERROR');
+                
+                const data = await response.json();
+                const sheets = data.sheets.map(sheet => sheet.properties.title);
+                const periods = organizeIntoPeriods(sheets);
+                populatePeriodsDropdown(periods);
+            } catch (error) {
+                console.error('Error initializing periods:', error);
+                document.getElementById('month').innerHTML = '<option value="">Error loading periods</option>';
+            }
+        }
+
+        function organizeIntoPeriods(sheets) {
+            // Sort sheets by date
+            const sortedSheets = sheets.sort((a, b) => {
+                const [dayA, monthA] = a.split('/').map(Number);
+                const [dayB, monthB] = b.split('/').map(Number);
+                if (monthA !== monthB) return monthA - monthB;
+                return dayA - dayB;
+            });
+
+            const periods = new Map();
+            
+            sortedSheets.forEach(sheet => {
+                const [day, month] = sheet.split('/').map(Number);
+                
+                // Determine period
+                let periodMonth, periodYear;
+                if (day >= 26) {
+                    periodMonth = month === 12 ? 1 : month + 1;
+                } else {
+                    periodMonth = month;
+                }
+                
+                const periodKey = periodMonth;
+                if (!periods.has(periodKey)) {
+                    periods.set(periodKey, {
+                        month: periodMonth,
+                        sheets: []
+                    });
+                }
+                periods.get(periodKey).sheets.push(sheet);
+            });
+
+            // Validate periods - only keep complete periods (26-25)
+            const validPeriods = Array.from(periods.values()).filter(period => {
+                const sheets = period.sheets;
+                const days = sheets.map(sheet => parseInt(sheet.split('/')[0]));
+                
+                // Check if period has days from 26th of previous month
+                const hasStartDays = days.some(day => day >= 26);
+                // Check if period has days until 25th of current month
+                const hasEndDays = days.some(day => day <= 25);
+                
+                return hasStartDays && hasEndDays;
+            });
+
+            return validPeriods;
+        }
+
+        function populatePeriodsDropdown(periods) {
+            const monthSelect = document.getElementById('month');
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            
+            monthSelect.innerHTML = '<option value="">Select Period</option>' +
+                periods.map(period => {
+                    const monthName = monthNames[period.month - 1];
+                    const prevMonthName = monthNames[period.month === 1 ? 11 : period.month - 2];
+                    // Sort sheets to find start and end dates
+                    const sortedSheets = period.sheets.sort((a, b) => {
+                        const [dayA, monthA] = a.split('/').map(Number);
+                        const [dayB, monthB] = b.split('/').map(Number);
+                        if (monthA !== monthB) return monthA - monthB;
+                        return dayA - dayB;
+                    });
+                    
+                    // Escape quotes and ensure proper JSON string formatting
+                    const sheetsValue = JSON.stringify(period.sheets).replace(/"/g, '&quot;');
+                    
+                    return `<option value='${sheetsValue}'>
+                        Period: 26 ${prevMonthName} - 25 ${monthName} (${period.sheets.length} days)
+                    </option>`;
+                }).join('');
+        }
+
         async function fetchAttendance() {
             const employeeName = document.getElementById("employeeName").value.trim();
-            const month = document.getElementById("month").value;
+            const monthSelect = document.getElementById("month");
             const outputDiv = document.getElementById("output");
             
             outputDiv.innerHTML = createLoading();
             if (!validateInput(employeeName)) return;
 
             try {
-                const sheets = await getMonthSheets(month);
-                if (!sheets.length) return showError("No data found for selected month", outputDiv);
+                const selectedValue = monthSelect.value;
+                if (!selectedValue) {
+                    return showError("Please select a period", outputDiv);
+                }
+
+                const sheets = JSON.parse(selectedValue);
+                if (!sheets.length) return showError("No data found for selected period", outputDiv);
                 
                 const { presentDays, allDays } = await processSheets(sheets, employeeName);
                 if (!presentDays.length) return showError("No records found for this employee", outputDiv);
                 
-                displayReport(presentDays, allDays, month, outputDiv);
+                displayReport(presentDays, allDays, "", outputDiv);
             } catch (error) {
                 handleError(error, outputDiv);
             }
@@ -138,16 +445,6 @@
             return true;
         }
 
-        async function getMonthSheets(month) {
-            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`);
-            if (!response.ok) throw new Error('API_ERROR');
-            
-            const data = await response.json();
-            return data.sheets
-                .filter(sheet => sheet.properties.title.split('/')[1] === month)
-                .map(sheet => sheet.properties.title);
-        }
-
         async function processSheets(sheetNames, employeeName) {
             let presentDays = [];
             const allDays = [];
@@ -162,13 +459,16 @@
                     const data = await response.json();
                     if (!data.values) continue;
 
-                    const day = sheetName.split('/')[0];
-                    allDays.push(parseInt(day));
+                    const [day, month] = sheetName.split('/');
+                    allDays.push({ 
+                        day: formatDate(day, month),
+                        status: data.values.find(row => row[3] === employeeName)?.[14] || '0' // Store status for absent days
+                    });
                     
                     const employeeRow = data.values.find(row => row[3] === employeeName);
                     if (!employeeRow) continue;
 
-                    presentDays.push(processAttendanceRow(day, employeeRow));
+                    presentDays.push(processAttendanceRow({ day, month }, employeeRow));
                 } catch (error) {
                     console.error('Sheet processing error:', error);
                 }
@@ -176,23 +476,54 @@
             return { presentDays, allDays };
         }
 
-        function processAttendanceRow(day, row) {
+        function processAttendanceRow(dateInfo, employeeRow) {
+            // Check both columns O and P for time
+            const timeO = employeeRow[14]?.trim() || ""; // Column O
+            const timeP = employeeRow[15]?.trim() || ""; // Column P
+            
+            // Check if there's a time in either column
+            const hasTimeO = timeO.match(/\d{1,2}:\d{2}/);
+            const hasTimeP = timeP.match(/\d{1,2}:\d{2}/);
+            
+            // Use the time that exists (if any)
+            const time = hasTimeO ? timeO : hasTimeP ? timeP : "";
+            
+            let attendanceStatus;
+            // If there's time in either column, mark as present
+            if (hasTimeO || hasTimeP) {
+                attendanceStatus = 'present';
+            }
+            // If no time in either column, mark as absent
+            else {
+                attendanceStatus = 'absent';
+            }
+
             return {
-                day,
-                status: row[14] || "0",
-                time: row[15]?.trim() || "",
-                deduction: row[17]?.trim() || "",
-                isLate: checkLateTime(row[15])
+                day: formatDate(dateInfo.day, dateInfo.month),
+                status: timeO || timeP || "", // Store the actual value for reference
+                time: time,
+                deduction: employeeRow[17]?.trim() || "",
+                isLate: checkLateTime(time),
+                attendanceStatus: attendanceStatus
             };
         }
 
         function checkLateTime(timeStr) {
             if (!timeStr) return false;
-            const [timePart, period] = timeStr.split(' ');
-            let [hours, minutes] = timePart.split(':').map(Number);
             
-            if (period?.toUpperCase() === 'PM' && hours !== 12) hours += 12;
-            if (period?.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            // Extract time using regex to handle different formats
+            const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+            if (!timeMatch) return false;
+            
+            let [_, hours, minutes, period] = timeMatch;
+            hours = Number(hours);
+            minutes = Number(minutes);
+            
+            if (period) {
+                period = period.toUpperCase();
+                if (period === 'PM' && hours !== 12) hours += 12;
+                if (period === 'AM' && hours === 12) hours = 0;
+            }
             
             return hours > 8 || (hours === 8 && minutes > 5);
         }
@@ -200,15 +531,44 @@
         function displayReport(presentDays, allDays, month, container) {
             const dailySalary = MONTHLY_SALARY / WORKING_DAYS;
             const deductions = calculateDeductions(presentDays);
-            const absentDays = calculateAbsences(allDays, presentDays.map(p => p.day));
+            
+            // Filter days by attendance status
+            const actualPresentDays = presentDays.filter(day => 
+                day.attendanceStatus === 'present'
+            );
+            const absentDays = allDays.filter(day => {
+                const isPresentDay = presentDays.some(p => p.day === day.day);
+                if (!isPresentDay) return true;
+                const presentDay = presentDays.find(p => p.day === day.day);
+                return presentDay.attendanceStatus === 'absent';
+            });
+            
+            // Calculate unaccounted days
+            const accountedDays = new Set([
+                ...actualPresentDays.map(d => d.day),
+                ...absentDays.map(d => d.day)
+            ]);
+            const unaccountedDays = allDays.filter(day => !accountedDays.has(day.day));
             
             container.innerHTML = `
                 <div class="row g-4">
+                    <!-- Period Summary -->
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h5>Period Summary</h5>
+                            <p>Total Days in Period: ${allDays.length}</p>
+                            <p>Present Days: ${actualPresentDays.length}</p>
+                            <p>Absent Days: ${absentDays.length}</p>
+                            ${unaccountedDays.length > 0 ? 
+                                `<p class="text-warning">Unaccounted Days: ${unaccountedDays.length}</p>` : ''}
+                        </div>
+                    </div>
+
                     <!-- Summary Cards -->
                     <div class="col-md-4">
                         <div class="result-card border-success">
                             <h5>Present Days</h5>
-                            <div class="display-4">${presentDays.length}</div>
+                            <div class="display-4">${actualPresentDays.length}</div>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -234,11 +594,11 @@
                                 </div>
                                 <div class="col-md-4">
                                     <h5>Net Working Days</h5>
-                                    <p>${presentDays.length - deductions.total}</p>
+                                    <p>${actualPresentDays.length - deductions.total}</p>
                                 </div>
                                 <div class="col-md-4">
                                     <h5>Expected Salary</h5>
-                                    <p class="text-success">$${(dailySalary * (presentDays.length - deductions.total)).toFixed(2)}</p>
+                                    <p class="text-success">$${(dailySalary * (actualPresentDays.length - deductions.total)).toFixed(2)}</p>
                                 </div>
                             </div>
                         </div>
@@ -247,9 +607,15 @@
                     <!-- Detailed Sections -->
                     <div class="col-12">
                         <div class="accordion" id="reportAccordion">
-                            ${createAccordionSection('present', 'Present Days', presentDays)}
+                            ${createAccordionSection('present', 'Present Days', actualPresentDays)}
                             ${createAccordionSection('absent', 'Absent Days', absentDays)}
                             ${createAccordionSection('deductions', 'Deductions', deductions.list)}
+                            ${unaccountedDays.length > 0 ? 
+                                createAccordionSection('unaccounted', 'Unaccounted Days', unaccountedDays.map(day => ({
+                                    day: day.day,
+                                    status: day.status,
+                                    details: 'Unable to determine status'
+                                }))) : ''}
                         </div>
                     </div>
                 </div>
@@ -271,17 +637,38 @@
                          class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
                          data-bs-parent="#reportAccordion">
                         <div class="accordion-body">
-                            ${items.length ? items.map(item => type === 'deductions' ? `
-                                <div class="deduction-item">
-                                    <strong>Day ${item.day}:</strong> ${item.details}
-                                    <span class="badge bg-danger">${item.value} day</span>
-                                </div>
-                            ` : `
-                                <div class="d-flex justify-content-between py-2 border-bottom">
-                                    <span>Day ${item.day || item}</span>
-                                    ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
-                                </div>
-                            `).join('') : 'No records found'}
+                            ${items.length ? items.map(item => {
+                                if (type === 'deductions') {
+                                    return `
+                                        <div class="deduction-item">
+                                            <strong>Day ${item.day}:</strong> ${item.details}
+                                            <span class="badge bg-danger">${item.value} day</span>
+                                        </div>
+                                    `;
+                                } else if (type === 'unaccounted') {
+                                    return `
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Day ${item.day}</span>
+                                            <span class="text-warning">
+                                                Status: ${item.status || 'Unknown'}
+                                                <br>
+                                                <small>${item.details}</small>
+                                            </span>
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Day ${item.day}</span>
+                                            <span class="${type === 'absent' ? 'text-danger' : ''}">
+                                                ${type === 'absent' ? 'Absent' : ''}
+                                                ${item.time ? `(${item.time})` : ''}
+                                                ${item.isLate ? '<br><small class="text-danger">Late</small>' : ''}
+                                            </span>
+                                        </div>
+                                    `;
+                                }
+                            }).join('') : 'No records found'}
                         </div>
                     </div>
                 </div>
@@ -315,12 +702,17 @@
         }
 
         function calculateAbsences(allDays, presentDays) {
-            return Array.from({length: 31}, (_, i) => i + 1)
-                .filter(day => 
-                    allDays.includes(day) && 
-                    !presentDays.includes(day.toString())
-                );
+            return allDays
+                .filter(dayInfo => {
+                    const formattedDate = dayInfo.day;
+                    return !presentDays.some(p => p === formattedDate);
+                })
+                .map(dayInfo => ({
+                    day: dayInfo.day,
+                    status: dayInfo.status
+                }));
         }
+        
 
         function showError(message, container) {
             container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
@@ -333,6 +725,33 @@
                 : 'Connection Error - Please check internet connection';
             showError(message, container);
         }
+
+        function formatDate(day, month) {
+            console.log('formatDate input - day:', day, 'month:', month);
+            
+            if (!month) {
+                console.error('Month is undefined or empty for day:', day);
+                return `${day} (Invalid Month)`;
+            }
+            
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            
+            const monthIndex = parseInt(month) - 1;
+            console.log('Month index:', monthIndex);
+            
+            if (monthIndex < 0 || monthIndex >= 12) {
+                console.error('Invalid month number:', month);
+                return `${day} (Invalid Month)`;
+            }
+            
+            const monthName = monthNames[monthIndex];
+            return `${day} ${monthName}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePeriods);
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
