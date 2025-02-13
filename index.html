@@ -507,9 +507,17 @@
 
     // Check for deductions in columns Q, O, and R
     const deductions = [];
-    if (deductionQ) deductions.push({ column: "Q", reason: deductionQ });
-    if (deductionO) deductions.push({ column: "O", reason: deductionO });
-    if (deductionR) deductions.push({ column: "R", reason: deductionR });
+    const ignoreList = ["(P) GT","(T) GT", "T1", "T2", "T3", "E", "0", "P", "T"]; // Values to ignore
+
+    if (deductionQ && !ignoreList.includes(deductionQ) && !deductionQ.match(/\d{1,2}:\d{2}/)) {
+        deductions.push({ column: "Q", reason: deductionQ });
+    }
+    if (deductionO && !ignoreList.includes(deductionO) && !deductionO.match(/\d{1,2}:\d{2}/)) {
+        deductions.push({ column: "O", reason: deductionO });
+    }
+    if (deductionR && !ignoreList.includes(deductionR) && !deductionR.match(/\d{1,2}:\d{2}/)) {
+        deductions.push({ column: "R", reason: deductionR });
+    }
 
     return {
         day: formatDate(dateInfo.day, dateInfo.month),
@@ -688,7 +696,7 @@
     `;
 }
 
-        function calculateDeductions(presentDays) {
+       function calculateDeductions(presentDays) {
     let total = 0;
     const list = [];
     
@@ -718,7 +726,6 @@
     
     return { total, list };
 }
-
         function calculateAbsences(allDays, presentDays) {
             return allDays
                 .filter(dayInfo => {
