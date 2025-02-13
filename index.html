@@ -119,14 +119,17 @@
             const startMonth = month > 1 ? month - 1 : 12;
             const startYear = month > 1 ? currentYear : currentYear - 1;
             const startDate = new Date(startYear, startMonth - 1, 26);
-            const endDate = new Date();
+            const endDate = new Date(currentYear, month, 25);
 
             const data = [];
             let currentDate = new Date(startDate);
-            let presentDays = 0, absentDays = 0, totalDeductions = 0;
+            let presentDays = 0, absentDays = 0, totalDeductions = 0, fridaysWorked = 0;
 
             while (currentDate <= endDate) {
                 const dateStr = currentDate.toISOString().split('T')[0];
+                const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+                const isFriday = dayOfWeek === 5; // Friday
+
                 const checkInTime = getRandomTime("08:00", "10:00");
                 const checkOutTime = Math.random() > 0.7 ? getRandomTime("14:00", "16:00") : null;
                 const violation = Math.random() > 0.8 ? "Late Arrival" : null;
@@ -138,6 +141,10 @@
                 if (checkInTime) presentDays++;
                 else absentDays++;
 
+                if (isFriday && checkInTime) {
+                    fridaysWorked++;
+                }
+
                 totalDeductions += deduction;
 
                 data.push({
@@ -145,12 +152,14 @@
                     checkInTime: checkInTime,
                     checkOutTime: checkOutTime,
                     deduction: deduction,
-                    violation: violation
+                    violation: violation,
+                    isFriday: isFriday
                 });
 
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
+            const workingDays = data.filter(d => ![0, 5].includes(new Date(d.date).getDay())).length; // Exclude weekends
             const dailySalary = 211.54;
             const netWorkingDays = presentDays - totalDeductions;
             const expectedSalary = netWorkingDays * dailySalary;
@@ -162,7 +171,8 @@
                     totalDeductions: totalDeductions.toFixed(1),
                     dailySalary: dailySalary.toFixed(2),
                     netWorkingDays: netWorkingDays.toFixed(1),
-                    expectedSalary: expectedSalary.toFixed(2)
+                    expectedSalary: expectedSalary.toFixed(2),
+                    fridaysWorked: fridaysWorked
                 },
                 details: data
             };
@@ -215,6 +225,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="summary-card animate__animated animate__fadeInUp">
+                            <h4>Fridays Worked</h4>
+                            <p>${data.summary.fridaysWorked}</p>
+                        </div>
+                    </div>
+                </div>
             `;
 
             const detailsHTML = `
@@ -229,6 +247,10 @@
                 <div class="details-card" id="deductionDetails">
                     <h4>Deductions (${data.summary.totalDeductions})</h4>
                     ${data.details.filter(d => d.deduction > 0).map(d => `<p>${d.date} - Deduction: ${d.deduction} day(s) - Reason: ${d.violation || "N/A"}</p>`).join("")}
+                </div>
+                <div class="details-card" id="fridayDetails">
+                    <h4>Fridays Worked (${data.summary.fridaysWorked})</h4>
+                    ${data.details.filter(d => d.isFriday && d.checkInTime).map(d => `<p>${d.date} - Friday Bonus</p>`).join("")}
                 </div>
             `;
 
