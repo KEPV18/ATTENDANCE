@@ -148,34 +148,34 @@
                 .map(sheet => sheet.properties.title);
         }
 
-    async function processSheets(sheetNames, employeeName) {
-    let presentDays = [];
-    const allDays = [];
-    
-    for (const sheetName of sheetNames) {
-        try {
-            const response = await fetch(
-                `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
-            );
-            if (!response.ok) continue;
+        async function processSheets(sheetNames, employeeName) {
+            let presentDays = [];
+            const allDays = [];
             
-            const data = await response.json();
-            if (!data.values) continue;
+            for (const sheetName of sheetNames) {
+                try {
+                    const response = await fetch(
+                        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`
+                    );
+                    if (!response.ok) continue;
+                    
+                    const data = await response.json();
+                    if (!data.values) continue;
 
-            // هنا التغيير: نمرر sheetName بدل day
-            allDays.push(sheetName);
-            
-            const employeeRow = data.values.find(row => row[3] === employeeName);
-            if (!employeeRow) continue;
+                    const day = sheetName.split('/')[0];
+                    allDays.push(parseInt(day));
+                    
+                    const employeeRow = data.values.find(row => row[3] === employeeName);
+                    if (!employeeRow) continue;
 
-            // نمرر sheetName كامل
-            presentDays.push(processAttendanceRow(sheetName, employeeRow));
-        } catch (error) {
-            console.error('Sheet processing error:', error);
+                    presentDays.push(processAttendanceRow(day, employeeRow));
+                } catch (error) {
+                    console.error('Sheet processing error:', error);
+                }
+            }
+            return { presentDays, allDays };
         }
-    }
-    return { presentDays, allDays };
-}
+
         function processAttendanceRow(day, row) {
             return {
                 day,
@@ -271,17 +271,17 @@
                          class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
                          data-bs-parent="#reportAccordion">
                         <div class="accordion-body">
-                          ${items.map(item => type === 'deductions' ? `
-    <div class="deduction-item">
-        <strong>${item.day}:</strong> ${item.details}
-        <span class="badge bg-danger">${item.value} day</span>
-    </div>
-` : `
-    <div class="d-flex justify-content-between py-2 border-bottom">
-        <span>${item.day || item}</span>
-        ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
-    </div>
-`).join('')}
+                            ${items.length ? items.map(item => type === 'deductions' ? `
+                                <div class="deduction-item">
+                                    <strong>Day ${item.day}:</strong> ${item.details}
+                                    <span class="badge bg-danger">${item.value} day</span>
+                                </div>
+                            ` : `
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span>Day ${item.day || item}</span>
+                                    ${item.isLate ? `<span class="text-danger">Late (${item.time})</span>` : ''}
+                                </div>
+                            `).join('') : 'No records found'}
                         </div>
                     </div>
                 </div>
@@ -315,8 +315,7 @@
         }
 
         function calculateAbsences(allDays, presentDays) {
-    return allDays.filter(day => !presentDays.includes(day));
-}
+            return Array.from({length: 31}, (_, i) => i + 1)
                 .filter(day => 
                     allDays.includes(day) && 
                     !presentDays.includes(day.toString())
