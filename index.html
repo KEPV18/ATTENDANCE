@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Attendance System</title>
+    <!-- Add Favicon -->
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Butterfly_icon_2.svg/1200px-Butterfly_icon_2.svg.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
@@ -282,6 +284,10 @@
         }
 
         function formatTime(date) {
+            // Ensure the input is a Date object
+            if (!(date instanceof Date)) {
+                date = new Date(`1970-01-01T${date}`);
+            }
             const hours = date.getHours();
             const minutes = String(date.getMinutes()).padStart(2, "0");
             const period = hours >= 12 ? "PM" : "AM";
