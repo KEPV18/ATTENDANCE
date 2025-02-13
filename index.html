@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام الحضور والمرتبات</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="data:,">
 </head>
 <body>
     <div class="container">
@@ -15,7 +14,16 @@
             <select id="monthSelect">
                 <option value="1">يناير</option>
                 <option value="2">فبراير</option>
-                <!-- باقي الشهور -->
+                <option value="3">مارس</option>
+                <option value="4">أبريل</option>
+                <option value="5">مايو</option>
+                <option value="6">يونيو</option>
+                <option value="7">يوليو</option>
+                <option value="8">أغسطس</option>
+                <option value="9">سبتمبر</option>
+                <option value="10">أكتوبر</option>
+                <option value="11">نوفمبر</option>
+                <option value="12">ديسمبر</option>
             </select>
             <button class="gradient-btn" onclick="calculateAttendance()">
                 <span class="btn-text">بحث</span>
@@ -32,7 +40,7 @@
     <!-- Modal -->
     <div class="modal" id="detailsModal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
+            <span class="close-btn" onclick="document.getElementById('detailsModal').style.display = 'none'">&times;</span>
             <div id="modalContent"></div>
         </div>
     </div>
