@@ -476,37 +476,39 @@
             return { presentDays, allDays };
         }
 
-        function processAttendanceRow(dateInfo, employeeRow) {
-            // Check both columns O and P for time
-            const timeO = employeeRow[14]?.trim() || ""; // Column O
-            const timeP = employeeRow[15]?.trim() || ""; // Column P
-            
-            // Check if there's a time in either column
-            const hasTimeO = timeO.match(/\d{1,2}:\d{2}/);
-            const hasTimeP = timeP.match(/\d{1,2}:\d{2}/);
-            
-            // Use the time that exists (if any)
-            const time = hasTimeO ? timeO : hasTimeP ? timeP : "";
-            
-            let attendanceStatus;
-            // If there's time in either column, mark as present
-            if (hasTimeO || hasTimeP) {
-                attendanceStatus = 'present';
-            }
-            // If no time in either column, mark as absent
-            else {
-                attendanceStatus = 'absent';
-            }
+   function processAttendanceRow(dateInfo, employeeRow) {
+    // Check columns M, O, and P for time
+    const timeM = employeeRow[12]?.trim() || ""; // Column M
+    const timeO = employeeRow[14]?.trim() || ""; // Column O
+    const timeP = employeeRow[15]?.trim() || ""; // Column P
+    
+    // Check if there's a time in any of the columns
+    const hasTimeM = timeM.match(/\d{1,2}:\d{2}/) && timeM !== "0"; // Ensure timeM is not "0"
+    const hasTimeO = timeO.match(/\d{1,2}:\d{2}/) && timeO !== "0"; // Ensure timeO is not "0"
+    const hasTimeP = timeP.match(/\d{1,2}:\d{2}/) && timeP !== "0"; // Ensure timeP is not "0"
+    
+    // Use the time that exists (if any)
+    const time = hasTimeM ? timeM : hasTimeO ? timeO : hasTimeP ? timeP : "";
+    
+    let attendanceStatus;
+    // If there's time in any column, mark as present
+    if (hasTimeM || hasTimeO || hasTimeP) {
+        attendanceStatus = 'present';
+    }
+    // If no time in any column, mark as absent
+    else {
+        attendanceStatus = 'absent';
+    }
 
-            return {
-                day: formatDate(dateInfo.day, dateInfo.month),
-                status: timeO || timeP || "", // Store the actual value for reference
-                time: time,
-                deduction: employeeRow[17]?.trim() || "",
-                isLate: checkLateTime(time),
-                attendanceStatus: attendanceStatus
-            };
-        }
+    return {
+        day: formatDate(dateInfo.day, dateInfo.month),
+        status: timeM || timeO || timeP || "", // Store the actual value for reference
+        time: time,
+        deduction: employeeRow[17]?.trim() || "",
+        isLate: checkLateTime(time),
+        attendanceStatus: attendanceStatus
+    };
+}
 
         function checkLateTime(timeStr) {
             if (!timeStr) return false;
