@@ -12,6 +12,9 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                 const sheets = data.sheets.map(sheet => sheet.properties.title);
                 const periods = organizeIntoPeriods(sheets);
                 populatePeriodsDropdown(periods);
+                
+                // Add this: Initialize names autocomplete after loading periods
+                await initializeNamesAutocomplete(sheets);
             } catch (error) {
                 console.error('Error initializing periods:', error);
                 document.getElementById('month').innerHTML = '<option value="">Error loading periods</option>';
@@ -19,7 +22,7 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
         }
 
         function organizeIntoPeriods(sheets) {
-            // Sort sheets by date
+            // Sort sheets by date with year consideration
             const sortedSheets = sheets.sort((a, b) => {
                 const [dayA, monthA] = a.split('/').map(Number);
                 const [dayB, monthB] = b.split('/').map(Number);
@@ -33,7 +36,7 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                 const [day, month] = sheet.split('/').map(Number);
 
                 // Determine period
-                let periodMonth, periodYear;
+                let periodMonth;
                 if (day >= 26) {
                     periodMonth = month === 12 ? 1 : month + 1;
                 } else {
@@ -50,18 +53,16 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                 periods.get(periodKey).sheets.push(sheet);
             });
 
-            // Validate periods - only keep complete periods (26-25)
-            const validPeriods = Array.from(periods.values()).filter(period => {
-                const sheets = period.sheets;
-                const days = sheets.map(sheet => parseInt(sheet.split('/')[0]));
-
-                // Check if period has days from 26th of previous month
-                const hasStartDays = days.some(day => day >= 26);
-                // Check if period has days until 25th of current month
-                const hasEndDays = days.some(day => day <= 25);
-
-                return hasStartDays && hasEndDays;
-            });
+            // Convert to array and sort by month
+            const validPeriods = Array.from(periods.values())
+                .filter(period => {
+                    const sheets = period.sheets;
+                    const days = sheets.map(sheet => parseInt(sheet.split('/')[0]));
+                    const hasStartDays = days.some(day => day >= 26);
+                    const hasEndDays = days.some(day => day <= 25);
+                    return hasStartDays && hasEndDays;
+                })
+                .sort((a, b) => a.month - b.month);
 
             return validPeriods;
         }
@@ -76,8 +77,10 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
             monthSelect.innerHTML = '<option value="">Select Period</option>' +
                 periods.map(period => {
                     const monthName = monthNames[period.month - 1];
-                    const prevMonthName = monthNames[period.month === 1 ? 11 : period.month - 2];
-                    // Sort sheets to find start and end dates
+                    const prevMonth = period.month === 1 ? 12 : period.month - 1;
+                    const prevMonthName = monthNames[prevMonth - 1];
+                    
+                    // Sort sheets to display date range
                     const sortedSheets = period.sheets.sort((a, b) => {
                         const [dayA, monthA] = a.split('/').map(Number);
                         const [dayB, monthB] = b.split('/').map(Number);
@@ -85,11 +88,10 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                         return dayA - dayB;
                     });
 
-                    // Escape quotes and ensure proper JSON string formatting
                     const sheetsValue = JSON.stringify(period.sheets).replace(/"/g, '&quot;');
 
                     return `<option value='${sheetsValue}'>
-                        Period: 26 ${prevMonthName} - 25 ${monthName} (${period.sheets.length} days)
+                        ${monthName} Period (26 ${prevMonthName} - 25 ${monthName}) - ${period.sheets.length} days
                     </option>`;
                 }).join('');
         }
@@ -148,18 +150,31 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                     if (!response.ok) continue;
 
                     const data = await response.json();
-                    if (!data.values) continue;
+                    if (!data.values || data.values.length < 2) continue;
+
+                    const headerRow = data.values[0];
+                    const columns = {
+                        checkIn: headerRow.findIndex(col => col?.toLowerCase().includes('check in')),
+                        checkOut: headerRow.findIndex(col => col?.toLowerCase().includes('check out')),
+                        violation: headerRow.findIndex(col => col?.toLowerCase().includes('violation')),
+                        name: headerRow.findIndex(col => col?.toLowerCase().includes('name'))
+                    };
+
+                    if (columns.name === -1) continue;
 
                     const [day, month] = sheetName.split('/');
+                    const employeeRow = data.values.find(row => row[columns.name] === employeeName);
+
+                    // Always add to allDays, even if employee is not found
                     allDays.push({ 
                         day: formatDate(day, month),
-                        status: data.values.find(row => row[3] === employeeName)?.[14] || '0' // Store status for absent days
+                        status: employeeRow ? 'present' : 'absent',
+                        sheetName: sheetName // Add sheet name for reference
                     });
 
-                    const employeeRow = data.values.find(row => row[3] === employeeName);
-                    if (!employeeRow) continue;
-
-                    presentDays.push(processAttendanceRow({ day, month }, employeeRow));
+                    if (employeeRow) {
+                        presentDays.push(processAttendanceRow({ day, month }, employeeRow, columns));
+                    }
                 } catch (error) {
                     console.error('Sheet processing error:', error);
                 }
@@ -167,57 +182,75 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
             return { presentDays, allDays };
         }
 
-   function processAttendanceRow(dateInfo, employeeRow) {
-    // Check columns M, O, and P for time
-    const timeM = employeeRow[12]?.trim() || ""; // Column M
-    const timeO = employeeRow[14]?.trim() || ""; // Column O
-    const timeP = employeeRow[15]?.trim() || ""; // Column P
+        function processAttendanceRow(dateInfo, employeeRow, columns) {
+            const checkInTime = columns.checkIn !== -1 ? employeeRow[columns.checkIn]?.trim() : "";
+            const checkOutTime = columns.checkOut !== -1 ? employeeRow[columns.checkOut]?.trim() : "";
+            const violation = columns.violation !== -1 ? employeeRow[columns.violation]?.trim() : "";
 
-    // Check columns Q, O, and R for deductions
-    const deductionQ = employeeRow[16]?.trim() || ""; // Column Q
-    const deductionO = employeeRow[14]?.trim() || ""; // Column O
-    const deductionR = employeeRow[17]?.trim() || ""; // Column R
+            // Calculate deductions
+            const deductions = [];
+            
+            // Check late arrival - only add deduction if there's no "Late Arrival" violation
+            if (checkInTime && checkLateTime(checkInTime) && 
+                (!violation || !violation.toLowerCase().includes('late arrival'))) {
+                deductions.push({
+                    column: "Check In",
+                    reason: `Late Arrival (${checkInTime})`,
+                    value: 0.5
+                });
+            }
 
-    // Check if there's a time in any of the columns
-    const hasTimeM = timeM.match(/\d{1,2}:\d{2}/) && timeM !== "0"; // Ensure timeM is not "0"
-    const hasTimeO = timeO.match(/\d{1,2}:\d{2}/) && timeO !== "0"; // Ensure timeO is not "0"
-    const hasTimeP = timeP.match(/\d{1,2}:\d{2}/) && timeP !== "0"; // Ensure timeP is not "0"
+            // Check early departure
+            if (checkOutTime) {
+                const earlyDeparture = checkEarlyDeparture(checkOutTime);
+                if (earlyDeparture) {
+                    deductions.push({
+                        column: "Check Out",
+                        reason: `Early Departure (${checkOutTime})`,
+                        value: earlyDeparture
+                    });
+                }
+            }
 
-    // Use the time that exists (if any)
-    const time = hasTimeM ? timeM : hasTimeO ? timeO : hasTimeP ? timeP : "";
+            // Check violations - only add if it's not a late arrival violation
+            if (violation && !violation.toLowerCase().includes('late arrival')) {
+                deductions.push({
+                    column: "Violation",
+                    reason: violation,
+                    value: 0.5
+                });
+            }
 
-    let attendanceStatus;
-    // If there's time in any column, mark as present
-    if (hasTimeM || hasTimeO || hasTimeP) {
-        attendanceStatus = 'present';
-    }
-    // If no time in any column, mark as absent
-    else {
-        attendanceStatus = 'absent';
-    }
+            return {
+                day: formatDate(dateInfo.day, dateInfo.month),
+                checkIn: checkInTime,
+                checkOut: checkOutTime,
+                deductions: deductions,
+                isLate: checkLateTime(checkInTime),
+                attendanceStatus: checkInTime ? 'present' : 'absent'
+            };
+        }
 
-    // Check for deductions in columns Q, O, and R
-    const deductions = [];
-    const ignoreList = ["Training","Training reviewers","(P) GT","(T) GT", "T1", "T2", "T3", "E", "0", "P", "T"]; // Values to ignore
-    if (deductionQ && !ignoreList.includes(deductionQ) && !deductionQ.match(/\d{1,2}:\d{2}/)) {
-        deductions.push({ column: "Q", reason: deductionQ });
-    }
-    if (deductionO && !ignoreList.includes(deductionO) && !deductionO.match(/\d{1,2}:\d{2}/)) {
-        deductions.push({ column: "O", reason: deductionO });
-    }
-    if (deductionR && !ignoreList.includes(deductionR) && !deductionR.match(/\d{1,2}:\d{2}/)) {
-        deductions.push({ column: "R", reason: deductionR });
-    }
+        function checkEarlyDeparture(timeStr) {
+            if (!timeStr) return 0;
 
-    return {
-        day: formatDate(dateInfo.day, dateInfo.month),
-        status: timeM || timeO || timeP || "", // Store the actual value for reference
-        time: time,
-        deductions: deductions, // Store deductions with reasons
-        isLate: checkLateTime(time),
-        attendanceStatus: attendanceStatus
-    };
-}
+            const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+            if (!timeMatch) return 0;
+
+            let [_, hours, minutes, period] = timeMatch;
+            hours = Number(hours);
+            minutes = Number(minutes);
+
+            // If time is after 2:30, no deduction
+            if (hours === 2 && minutes >= 30 || hours > 2) return 0;
+
+            // If time is between 12:00 and 2:30, 0.5 day deduction
+            if (hours === 2 || hours === 1 || hours === 12) return 0.5;
+
+            // Before 12:00 = 1 day deduction
+            return 1;
+        }
+
         function checkLateTime(timeStr) {
             if (!timeStr) return false;
 
@@ -260,7 +293,20 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
             ]);
             const unaccountedDays = allDays.filter(day => !accountedDays.has(day.day));
 
+            // Get employee name from input
+            const employeeName = document.getElementById("employeeName").value.trim();
+
+            // Prepare statistics items
+            const statisticsItems = [
+                { label: 'Total Sheets in Period', value: allDays.length },
+                { label: 'Sheets with Employee Record', value: presentDays.length },
+                { label: 'Sheets without Employee Record', value: allDays.length - presentDays.length }
+            ];
+
             container.innerHTML = `
+                <div class="alert alert-success mb-4">
+                    <h4 class="mb-0">Hey ${employeeName}! 👋</h4>
+                </div>
                 <div class="row g-4">
                     <!-- Period Summary -->
                     <div class="col-12">
@@ -323,95 +369,95 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                                     status: day.status,
                                     details: 'Unable to determine status'
                                 }))) : ''}
+                            ${createAccordionSection('statistics', 'Sheet Statistics', statisticsItems)}
                         </div>
                     </div>
                 </div>
             `;
         }
 
-       function createAccordionSection(type, title, items) {
-    return `
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button ${type !== 'present' ? 'collapsed' : ''}" 
-                        type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#${type}Section">
-                    ${title} (${items.length})
-                </button>
-            </h2>
-            <div id="${type}Section" 
-                 class="accordion-collapse collapse ${type === 'present' ? 'show' : ''}" 
-                 data-bs-parent="#reportAccordion">
-                <div class="accordion-body">
-                    ${items.length ? items.map(item => {
-                        if (type === 'deductions') {
-                            return `
-                                <div class="deduction-item">
-                                    <strong>Day ${item.day}:</strong> ${item.details}
-                                    <span class="badge bg-danger">${item.value} day</span>
-                                </div>
-                            `;
-                        } else if (type === 'unaccounted') {
-                            return `
-                                <div class="d-flex justify-content-between py-2 border-bottom">
-                                    <span>Day ${item.day}</span>
-                                    <span class="text-warning">
-                                        Status: ${item.status || 'Unknown'}
-                                        <br>
-                                        <small>${item.details}</small>
-                                    </span>
-                                </div>
-                            `;
-                        } else {
-                            return `
-                                <div class="d-flex justify-content-between py-2 border-bottom">
-                                    <span>Day ${item.day}</span>
-                                    <span class="${type === 'absent' ? 'text-danger' : ''}">
-                                        ${type === 'absent' ? 'Absent' : ''}
-                                        ${item.time ? `(${item.time})` : ''}
-                                        ${item.isLate ? '<br><small class="text-danger">Late</small>' : ''}
-                                    </span>
-                                </div>
-                            `;
-                        }
-                    }).join('') : 'No records found'}
+        function createAccordionSection(type, title, items) {
+            return `
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#${type}Section">
+                            ${title} (${items.length})
+                        </button>
+                    </h2>
+                    <div id="${type}Section" 
+                         class="accordion-collapse collapse" 
+                         data-bs-parent="#reportAccordion">
+                        <div class="accordion-body">
+                            ${items.length ? items.map(item => {
+                                if (type === 'deductions') {
+                                    return `
+                                        <div class="deduction-item">
+                                            <strong>Day ${item.day}:</strong> ${item.details}
+                                            <span class="badge bg-danger">${item.value} day</span>
+                                        </div>
+                                    `;
+                                } else if (type === 'unaccounted') {
+                                    return `
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Day ${item.day}</span>
+                                            <span class="text-warning">
+                                                Status: ${item.status || 'Unknown'}
+                                                <br>
+                                                <small>${item.details}</small>
+                                            </span>
+                                        </div>
+                                    `;
+                                } else if (type === 'statistics') {
+                                    return `
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>${item.label}</span>
+                                            <span>${item.value}</span>
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Day ${item.day}</span>
+                                            <span class="${type === 'absent' ? 'text-danger' : ''}">
+                                                ${type === 'absent' ? 'Absent' : ''}
+                                                ${item.checkIn ? `(${item.checkIn})` : ''}
+                                                ${item.checkOut ? `(${item.checkOut})` : ''}
+                                                ${item.isLate ? '<br><small class="text-danger">Late</small>' : ''}
+                                            </span>
+                                        </div>
+                                    `;
+                                }
+                            }).join('') : 'No records found'}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    `;
-}
-
-       function calculateDeductions(presentDays) {
-    let total = 0;
-    const list = [];
-
-    presentDays.forEach(day => {
-        // Check for late arrival
-        if (day.isLate) {
-            total += 0.5;
-            list.push({
-                day: day.day,
-                details: `Late arrival (${day.time})`,
-                value: 0.5
-            });
+            `;
         }
 
-        // Check for deductions in columns Q, O, and R
-        if (day.deductions && day.deductions.length > 0) {
-            day.deductions.forEach(deduction => {
-                total += 0.5; // Half day deduction for each deduction
-                list.push({
-                    day: day.day,
-                    details: `Deduction (${deduction.column}): ${deduction.reason}`,
-                    value: 0.5
-                });
-            });
-        }
-    });
+        function calculateDeductions(presentDays) {
+            let total = 0;
+            const list = [];
 
-    return { total, list };
-}
+            presentDays.forEach(day => {
+                // Remove the general late arrival check and only use deductions from columns
+                if (day.deductions && day.deductions.length > 0) {
+                    day.deductions.forEach(deduction => {
+                        total += deduction.value;
+                        list.push({
+                            day: day.day,
+                            details: `Deduction (${deduction.column}): ${deduction.reason}`,
+                            value: deduction.value
+                        });
+                    });
+                }
+            });
+
+            return { total, list };
+        }
+
         function calculateAbsences(allDays, presentDays) {
             return allDays
                 .filter(dayInfo => {
@@ -423,7 +469,6 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                     status: dayInfo.status
                 }));
         }
-
 
         function showError(message, container) {
             container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
@@ -460,6 +505,56 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
 
             const monthName = monthNames[monthIndex];
             return `${day} ${monthName}`;
+        }
+
+        async function initializeNamesAutocomplete(sheetNames) {
+            try {
+                const uniqueNames = new Set();
+                
+                // Get first sheet to extract names (for efficiency)
+                const firstSheet = sheetNames[0];
+                const response = await fetch(
+                    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(firstSheet)}?key=${API_KEY}`
+                );
+                
+                if (!response.ok) throw new Error('API_ERROR');
+                
+                const data = await response.json();
+                if (!data.values || data.values.length < 2) return;
+                
+                // Find name column index
+                const headerRow = data.values[0];
+                const nameColumnIndex = headerRow.findIndex(col => col?.toLowerCase().includes('name'));
+                
+                if (nameColumnIndex === -1) return;
+                
+                // Extract all names
+                data.values.slice(1).forEach(row => {
+                    if (row[nameColumnIndex]) {
+                        uniqueNames.add(row[nameColumnIndex].trim());
+                    }
+                });
+                
+                // Create or update datalist
+                let datalist = document.getElementById('employeeNamesList');
+                if (!datalist) {
+                    datalist = document.createElement('datalist');
+                    datalist.id = 'employeeNamesList';
+                    document.body.appendChild(datalist);
+                }
+                
+                datalist.innerHTML = Array.from(uniqueNames)
+                    .sort()
+                    .map(name => `<option value="${name}">`)
+                    .join('');
+                    
+                // Add datalist to input
+                const employeeNameInput = document.getElementById('employeeName');
+                employeeNameInput.setAttribute('list', 'employeeNamesList');
+                
+            } catch (error) {
+                console.error('Error initializing names autocomplete:', error);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', initializePeriods);

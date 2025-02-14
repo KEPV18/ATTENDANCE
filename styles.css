@@ -1,275 +1,522 @@
 :root {
-            --primary-color: #4285f4;
-            --secondary-color: #1a73e8;
-            --success-color: #34a853;
-            --danger-color: #ea4335;
-            --dark-bg: #1a1a1a;
-            --dark-card: #2d2d2d;
-            --dark-input: #333333;
-            --text-light: #ffffff;
-            --text-gray: #b0b0b0;
-            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            --glow: 0 0 20px rgba(66, 133, 244, 0.15);
-        }
+    --primary-color: #4285f4;
+    --secondary-color: #1a73e8;
+    --success-color: #34a853;
+    --danger-color: #ea4335;
+    --dark-bg: #1a1a1a;
+    --dark-card: #2d2d2d;
+    --dark-input: #333333;
+    --text-light: #ffffff;
+    --text-gray: #b0b0b0;
+    --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --glow: 0 0 20px rgba(11, 61, 145, 0.15);
+    --space-gradient: linear-gradient(135deg, var(--nasa-blue) 0%, #000000 100%);
+    --nebula-glow: 0 0 50px rgba(11, 61, 145, 0.2);
+    --star-color: rgba(255, 255, 255, 0.8);
+    --cosmic-border: 1px solid rgba(11, 61, 145, 0.2);
+    --nasa-blue: #0B3D91;
+    --nasa-red: #FC3D21;
+    --moon-gray: #d3d3d3;
+    --space-black: #121212;
+    --star-white: #ffffff;
+    --moon-surface: #1a1a1a;
+    --moon-dust: #2d2d2d;
+    --moon-rock: #3d3d3d;
+    --moon-silver: #d3d3d3;
+    --cosmic-purple: #8a2be2;
+    --nebula-blue: #4b0082;
+    --meteor-orange: #ff4500;
+    --lunar-glow: rgba(211, 211, 211, 0.2);
+    --crater-shadow: rgba(0, 0, 0, 0.4);
+    --moon-gradient: linear-gradient(to bottom, var(--moon-surface) 0%, var(--moon-dust) 100%);
+}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--dark-bg) 0%, #000000 100%);
-            color: var(--text-light);
-            padding: 2rem 0;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
+body {
+    font-family: 'Arial', sans-serif;
+    background: var(--dark-bg);
+    color: var(--text-light);
+    padding: 2rem 0;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
 
-        .container {
-            max-width: 1200px;
-            background: var(--dark-card);
-            border-radius: 20px;
-            box-shadow: var(--card-shadow);
-            padding: 2.5rem;
-            margin: 0 auto;
-            animation: fadeIn 0.5s ease-out;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+/* تحسين تأثير النجوم */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(1px 1px at 20px 30px, var(--star-color), rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 40px 70px, var(--star-color), rgba(0,0,0,0));
+    background-size: 200px 200px;
+    background-repeat: repeat;
+    animation: twinkle 4s ease-in-out infinite;
+    z-index: -1;
+    opacity: 0.5;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+/* إزالة الطبقة الإضافية */
+body::after {
+    display: none;
+}
 
-        @keyframes glowPulse {
-            0% { box-shadow: var(--glow); }
-            50% { box-shadow: 0 0 30px rgba(66, 133, 244, 0.3); }
-            100% { box-shadow: var(--glow); }
-        }
+.container {
+    max-width: 1200px;
+    background: rgba(11, 61, 145, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 2.5rem;
+    margin: 0 auto;
+    border: var(--cosmic-border);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
 
-        h1 {
-            color: var(--text-light);
-            font-weight: 600;
-            margin-bottom: 2rem;
-            position: relative;
-            padding-bottom: 1rem;
-            text-align: center;
-            animation: slideDown 0.5s ease-out;
-        }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+@keyframes glowPulse {
+    0% { box-shadow: var(--glow); }
+    50% { box-shadow: 0 0 30px rgba(11, 61, 145, 0.3); }
+    100% { box-shadow: var(--glow); }
+}
 
-        h1:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 3px;
-            background: var(--primary-color);
-            border-radius: 2px;
-            animation: expandWidth 0.5s ease-out;
-        }
+h1 {
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1rem;
+    text-align: center;
+    animation: slideDown 0.5s ease-out;
+    text-shadow: 0 0 10px rgba(11, 61, 145, 0.5);
+}
 
-        @keyframes expandWidth {
-            from { width: 0; }
-            to { width: 100px; }
-        }
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
-        .input-section {
-            background: var(--dark-card);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2.5rem;
-            box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: slideUp 0.5s ease-out;
-        }
+h1:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #8a2be2, transparent);
+    border-radius: 2px;
+    animation: cosmicUnderline 2s ease-in-out infinite;
+}
 
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+@keyframes cosmicUnderline {
+    0% { width: 0; opacity: 0; }
+    50% { width: 100px; opacity: 1; }
+    100% { width: 0; opacity: 0; }
+}
 
-        .form-control, .form-select {
-            background-color: var(--dark-input);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1rem;
-            color: var(--text-light);
-            transition: all 0.3s ease;
-        }
+.input-section {
+    background: var(--dark-card);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.5s ease-out;
+    transform-style: preserve-3d;
+    animation: float 6s ease-in-out infinite;
+}
 
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
-            background-color: rgba(66, 133, 244, 0.1);
-        }
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
-        .btn-primary {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 12px;
-            padding: 1rem 2rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            animation: glowPulse 2s infinite;
-        }
+.form-control, .form-select {
+    background: rgba(11, 61, 145, 0.1);
+    border: 1px solid rgba(11, 61, 145, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    color: var(--text-light);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
 
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
-        }
+.form-control:focus, .form-select:focus {
+    background: rgba(11, 61, 145, 0.2);
+    box-shadow: 0 0 20px rgba(11, 61, 145, 0.3);
+    border-color: var(--nasa-blue);
+}
 
-        .result-card {
-            background: var(--dark-card);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            transition: all 0.3s ease;
-            animation: fadeIn 0.5s ease-out;
-        }
+.btn-primary {
+    background: linear-gradient(45deg, #8a2be2, #4b0082);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    animation: glowPulse 2s infinite;
+    position: relative;
+    overflow: hidden;
+}
 
-        .result-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--glow);
-        }
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+    animation: pulseGlow 2s ease-out infinite;
+}
 
-        .border-success {
-            border-left: 4px solid var(--success-color);
-            background: linear-gradient(to right, rgba(52, 168, 83, 0.1), var(--dark-card));
-        }
+@keyframes pulseGlow {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.5; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
 
-        .border-danger {
-            border-left: 4px solid var(--danger-color);
-            background: linear-gradient(to right, rgba(234, 67, 53, 0.1), var(--dark-card));
-        }
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(11, 61, 145, 0.4);
+}
 
-        .border-primary {
-            border-left: 4px solid var(--primary-color);
-            background: linear-gradient(to right, rgba(66, 133, 244, 0.1), var(--dark-card));
-        }
+.result-card {
+    background: rgba(11, 61, 145, 0.1);
+    border: var(--cosmic-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeIn 0.5s ease-out;
+    transform-style: preserve-3d;
+}
 
-        .salary-box {
-            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), var(--dark-card));
-            border-radius: 16px;
-            padding: 2rem;
-            margin-top: 2rem;
-            box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: fadeIn 0.5s ease-out;
-        }
+.result-card:hover {
+    transform: translateY(-5px) rotateX(5deg);
+    box-shadow: var(--nebula-glow);
+}
 
-        .accordion-button {
-            background: var(--dark-card);
-            color: var(--text-light);
-            border: none;
-            padding: 1.25rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
+.border-success {
+    border-left: 4px solid var(--success-color);
+    background: linear-gradient(to right, rgba(52, 168, 83, 0.1), var(--dark-card));
+}
 
-        .accordion-button:not(.collapsed) {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-        }
+.border-danger {
+    border-left: 4px solid var(--danger-color);
+    background: linear-gradient(to right, rgba(234, 67, 53, 0.1), var(--dark-card));
+}
 
-        .accordion-body {
-            background: var(--dark-card);
-            color: var(--text-light);
-        }
+.border-primary {
+    border-left: 4px solid var(--primary-color);
+    background: linear-gradient(to right, rgba(11, 61, 145, 0.1), var(--dark-card));
+}
 
-        .alert {
-            background: var(--dark-card);
-            border-radius: 16px;
-            padding: 1.25rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-light);
-        }
+.salary-box {
+    background: linear-gradient(135deg, rgba(11, 61, 145, 0.1), var(--dark-card));
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 0.5s ease-out;
+}
 
-        .display-4 {
-            font-weight: 600;
-            color: var(--primary-color);
-            text-shadow: 0 0 10px rgba(66, 133, 244, 0.3);
-        }
+.accordion-button {
+    background: var(--dark-card);
+    color: var(--text-light);
+    border: none;
+    padding: 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
 
-        .deduction-item {
-            background: var(--dark-card);
-            border-left: 3px solid var(--danger-color);
-            padding: 1rem;
-            margin: 0.75rem 0;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
+.accordion-button:not(.collapsed) {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
 
-        .deduction-item:hover {
-            transform: translateX(5px);
-            box-shadow: var(--glow);
-        }
+.accordion-body {
+    background: var(--dark-card);
+    color: var(--text-light);
+}
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+.alert {
+    background: var(--dark-card);
+    border-radius: 16px;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
 
-        ::-webkit-scrollbar-track {
-            background: var(--dark-bg);
-        }
+.display-4 {
+    font-weight: 600;
+    color: var(--primary-color);
+    text-shadow: 0 0 10px rgba(11, 61, 145, 0.3);
+}
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 4px;
-        }
+.deduction-item {
+    background: var(--dark-card);
+    border-left: 3px solid var(--danger-color);
+    padding: 1rem;
+    margin: 0.75rem 0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-color);
-        }
+.deduction-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--glow);
+}
 
-        /* Loading Animation */
-        .spinner-border {
-            animation: spin 1s linear infinite, glowPulse 2s infinite;
-        }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
 
-        /* تحديث القائمة المنسدلة */
-        .form-select {
-            background-color: var(--dark-input);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-            color: var(--text-light);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
 
-        .form-select option {
-            background-color: var(--dark-card);
-            color: var(--text-light);
-            padding: 12px;
-        }
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
 
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
-            background-color: var(--dark-input);
-        }
+/* Loading Animation */
+.spinner-border {
+    border: 4px solid transparent;
+    border-top-color: var(--nasa-blue);
+    border-right-color: var(--nasa-red);
+    animation: spin 1s linear infinite;
+}
 
-        /* تحسين حالة التحويم */
-        .form-select:hover {
-            border-color: var(--primary-color);
-            box-shadow: var(--glow);
-        }
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
-        /* تحسين القائمة المنسدلة عند فتحها */
-        .form-select optgroup {
-            background-color: var(--dark-card);
-            color: var(--text-light);
-            font-weight: 600;
-        }
+/* تحديث القائمة المنسدلة */
+.form-select {
+    background-color: var(--dark-input);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    color: var(--text-light);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
 
-        /* تحسين العناصر عند التحويم */
-        .form-select option:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
+.form-select option {
+    background-color: var(--dark-card);
+    color: var(--text-light);
+    padding: 12px;
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.2);
+    background-color: var(--dark-input);
+}
+
+/* تحسين حالة التحويم */
+.form-select:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--glow);
+}
+
+/* تحسين القائمة المنسدلة عند فتحها */
+.form-select optgroup {
+    background-color: var(--dark-card);
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+/* تحسين العناصر عند التحويم */
+.form-select option:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* NASA Logo Styles */
+.nasa-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.nasa-logo {
+    width: 150px;
+    height: auto;
+    margin-bottom: 1.5rem;
+    animation: float 6s ease-in-out infinite;
+}
+
+.cosmic-text {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--nasa-blue);
+    text-shadow: 0 0 20px rgba(11, 61, 145, 0.3);
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    display: block;
+    font-size: 1.4rem;
+    color: var(--text-gray);
+    margin-top: 0.5rem;
+    letter-spacing: 2px;
+}
+
+/* Control Panel Styles */
+.cosmic-panel {
+    background: rgba(11, 61, 145, 0.15);
+    border: 2px solid rgba(11, 61, 145, 0.3);
+    border-radius: 15px;
+    padding: 2rem;
+    position: relative;
+    backdrop-filter: blur(15px);
+    box-shadow: 
+        0 0 20px rgba(11, 61, 145, 0.2),
+        inset 0 0 20px rgba(11, 61, 145, 0.1);
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+}
+
+.cosmic-panel:hover {
+    transform: translateZ(10px);
+}
+
+/* Enhanced Panel Lights */
+.panel-lights {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.8rem;
+}
+
+.light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 15px currentColor;
+}
+
+.light:nth-child(1) { 
+    background: var(--nasa-red);
+    animation: pulse 2s infinite;
+}
+.light:nth-child(2) { 
+    background: var(--text-light);
+    animation: pulse 2s infinite 0.6s;
+}
+.light:nth-child(3) { 
+    background: var(--nasa-blue);
+    animation: pulse 2s infinite 1.2s;
+}
+
+/* Form Elements */
+.cosmic-input, .cosmic-select {
+    background: rgba(11, 61, 145, 0.1);
+    border: 1px solid rgba(11, 61, 145, 0.3);
+    color: var(--text-light);
+    padding: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 10px var(--crater-shadow);
+}
+
+.cosmic-input:focus, .cosmic-select:focus {
+    background: rgba(11, 61, 145, 0.2);
+    border-color: var(--nasa-blue);
+    box-shadow: 0 0 20px rgba(11, 61, 145, 0.3);
+}
+
+/* Launch Button */
+.cosmic-btn {
+    background: linear-gradient(45deg, var(--nasa-blue), var(--primary-color));
+    border: none;
+    padding: 1rem 2rem;
+    color: var(--text-light);
+    font-weight: bold;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.cosmic-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px rgba(11, 61, 145, 0.4);
+}
+
+.cosmic-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+    animation: buttonGlow 3s linear infinite;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes buttonGlow {
+    0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+    50% { transform: rotate(180deg) scale(1.2); opacity: 0.8; }
+    100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+/* Mission Output */
+.mission-output {
+    margin-top: 2rem;
+    background: rgba(11, 61, 145, 0.15);
+    border: 2px solid rgba(11, 61, 145, 0.3);
+    border-radius: 15px;
+    padding: 2rem;
+    backdrop-filter: blur(15px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .cosmic-text {
+        font-size: 2.5rem;
+    }
+    .subtitle {
+        font-size: 1.2rem;
+    }
+    .nasa-logo {
+        width: 120px;
+    }
+    .container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}
