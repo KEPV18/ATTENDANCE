@@ -198,7 +198,7 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
 
     // Check for deductions in columns Q, O, and R
     const deductions = [];
-    const ignoreList = ["(P) GT","(T) GT", "T1", "T2", "T3", "E", "0", "P", "T"]; // Values to ignore
+    const ignoreList = ["(P) GT","(T) GT", "T1", "T2","Training reviewers", "T3", "E", "0", "P", "T"]; // Values to ignore
     if (deductionQ && !ignoreList.includes(deductionQ) && !deductionQ.match(/\d{1,2}:\d{2}/)) {
         deductions.push({ column: "Q", reason: deductionQ });
     }
