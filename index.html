@@ -482,12 +482,10 @@
     const timeO = employeeRow[14]?.trim() || ""; // Column O
     const timeP = employeeRow[15]?.trim() || ""; // Column P
 
-    // Check columns N, P, and Q for check-out time
-    const checkOutN = employeeRow[13]?.trim() || ""; // Column N
-    const checkOutP = employeeRow[15]?.trim() || ""; // Column P
-    const checkOutQ = employeeRow[16]?.trim() || ""; // Column Q
-    // Use the first valid check-out time found
-    const checkOutTime = checkOutN || checkOutP || checkOutQ;
+    // Check columns Q, O, and R for deductions
+    const deductionQ = employeeRow[16]?.trim() || ""; // Column Q
+    const deductionO = employeeRow[14]?.trim() || ""; // Column O
+    const deductionR = employeeRow[17]?.trim() || ""; // Column R
 
     // Check if there's a time in any of the columns
     const hasTimeM = timeM.match(/\d{1,2}:\d{2}/) && timeM !== "0"; // Ensure timeM is not "0"
@@ -509,8 +507,7 @@
 
     // Check for deductions in columns Q, O, and R
     const deductions = [];
-    const ignoreList = ["(P) GT", "(T) GT", "T1", "T2", "T3", "E", "0", "P", "T"]; // Values to ignore
-
+    const ignoreList = ["(P) GT","(T) GT", "T1", "T2", "T3", "E", "0", "P", "T"]; // Values to ignore
     if (deductionQ && !ignoreList.includes(deductionQ) && !deductionQ.match(/\d{1,2}:\d{2}/)) {
         deductions.push({ column: "Q", reason: deductionQ });
     }
@@ -521,38 +518,6 @@
         deductions.push({ column: "R", reason: deductionR });
     }
 
-    // Calculate deductions based on check-out time
-    if (checkOutTime) {
-        const checkOutHours = parseInt(checkOutTime.split(':')[0]);
-        const checkOutMinutes = parseInt(checkOutTime.split(':')[1].split(' ')[0]);
-        const period = checkOutTime.split(' ')[1]?.toUpperCase(); // AM or PM
-        // Convert to 24-hour format
-        let checkOutTotalMinutes = checkOutHours * 60 + checkOutMinutes;
-        if (period === "PM" && checkOutHours !== 12) {
-            checkOutTotalMinutes += 12 * 60; // Convert PM to 24-hour format
-        }
-        if (period === "AM" && checkOutHours === 12) {
-            checkOutTotalMinutes -= 12 * 60; // Convert 12 AM to 00:00
-        }
-        // Define time ranges
-        const startTime = 8 * 60 + 40; // 8:40 AM in minutes
-        const endTime = 11 * 60; // 11:00 AM in minutes
-        if (checkOutTotalMinutes >= startTime && checkOutTotalMinutes <= endTime) {
-            // Deduction: Full day (1 day)
-            deductions.push({
-                column: "Check Out",
-                reason: `Early Check Out (${checkOutTime})`,
-                value: 1
-            });
-        } else if (checkOutTotalMinutes > endTime) {
-            // Deduction: Half day (0.5 day)
-            deductions.push({
-                column: "Check Out",
-                reason: `Late Check Out (${checkOutTime})`,
-                value: 0.5
-            });
-        }
-    }
     return {
         day: formatDate(dateInfo.day, dateInfo.month),
         status: timeM || timeO || timeP || "", // Store the actual value for reference
@@ -562,6 +527,7 @@
         attendanceStatus: attendanceStatus
     };
 }
+
         function checkLateTime(timeStr) {
             if (!timeStr) return false;
 
@@ -744,11 +710,11 @@
         // Check for deductions in columns Q, O, and R
         if (day.deductions && day.deductions.length > 0) {
             day.deductions.forEach(deduction => {
-                total += deduction.value; // Deduction value (0.5 or 1)
+                total += 0.5; // Half day deduction for each deduction
                 list.push({
                     day: day.day,
                     details: `Deduction (${deduction.column}): ${deduction.reason}`,
-                    value: deduction.value
+                    value: 0.5
                 });
             });
         }
