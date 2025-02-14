@@ -1,189 +1,275 @@
-:root {
-    --primary-color: #2A2E45;
-    --secondary-color: #7C7C7C;
-    --accent-color: #FF6B6B;
-    --background: #F8F9FA;
-    --card-bg: #FFFFFF;
-    --gradient-start: #FF6B6B;
-    --gradient-end: #FF8E53;
-    --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
+ :root {
+            --primary-color: #4285f4;
+            --secondary-color: #1a73e8;
+            --success-color: #34a853;
+            --danger-color: #ea4335;
+            --dark-bg: #1a1a1a;
+            --dark-card: #2d2d2d;
+            --dark-input: #333333;
+            --text-light: #ffffff;
+            --text-gray: #b0b0b0;
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            --glow: 0 0 20px rgba(66, 133, 244, 0.15);
+        }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Cairo', sans-serif;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #000000 100%);
+            color: var(--text-light);
+            padding: 2rem 0;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
 
-body {
-    background: var(--background);
-    direction: rtl;
-}
+        .container {
+            max-width: 1200px;
+            background: var(--dark-card);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 2.5rem;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 20px;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* تصميم شريط البحث */
-.search-section {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-    align-items: center;
-}
+        @keyframes glowPulse {
+            0% { box-shadow: var(--glow); }
+            50% { box-shadow: 0 0 30px rgba(66, 133, 244, 0.3); }
+            100% { box-shadow: var(--glow); }
+        }
 
-input, select {
-    padding: 1rem;
-    border: 2px solid #eee;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-}
+        h1 {
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 1rem;
+            text-align: center;
+            animation: slideDown 0.5s ease-out;
+        }
 
-input:focus, select:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 8px rgba(255, 107, 107, 0.2);
-}
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-/* تصميم الأزرار */
-.gradient-btn {
-    position: relative;
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
-    border: none;
-    border-radius: 12px;
-    padding: 1rem 2rem;
-    color: white;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            animation: expandWidth 0.5s ease-out;
+        }
 
-.gradient-btn:hover {
-    transform: translateY(-2px);
-}
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 100px; }
+        }
 
-.hover-effect {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.2);
-    width: 50px;
-    height: 100%;
-    left: -30%;
-    top: 0;
-    transform: skewX(-15deg);
-    transition: left 0.3s ease;
-}
+        .input-section {
+            background: var(--dark-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.5s ease-out;
+        }
 
-.gradient-btn:hover .hover-effect {
-    left: 110%;
-}
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-/* تصميم البطاقات */
-.dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    animation: fadeIn 0.8s ease;
-}
+        .form-control, .form-select {
+            background-color: var(--dark-input);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
 
-.card {
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: var(--box-shadow);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+            background-color: rgba(66, 133, 244, 0.1);
+        }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--accent-color);
-    transition: width 0.3s ease;
-}
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: glowPulse 2s infinite;
+        }
 
-.card:hover::before {
-    width: 100%;
-    opacity: 0.1;
-}
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
+        }
 
-.card:hover {
-    transform: translateY(-5px);
-}
+        .result-card {
+            background: var(--dark-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
 
-.card h3 {
-    color: var(--secondary-color);
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-}
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--glow);
+        }
 
-.card h2 {
-    color: var(--primary-color);
-    font-size: 2.5rem;
-    font-weight: 700;
-}
+        .border-success {
+            border-left: 4px solid var(--success-color);
+            background: linear-gradient(to right, rgba(52, 168, 83, 0.1), var(--dark-card));
+        }
 
-/* تصميم المودال */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    z-index: 1000;
-}
+        .border-danger {
+            border-left: 4px solid var(--danger-color);
+            background: linear-gradient(to right, rgba(234, 67, 53, 0.1), var(--dark-card));
+        }
 
-.modal-content {
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 2rem;
-    position: relative;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-width: 600px;
-    animation: modalSlide 0.4s ease;
-}
+        .border-primary {
+            border-left: 4px solid var(--primary-color);
+            background: linear-gradient(to right, rgba(66, 133, 244, 0.1), var(--dark-card));
+        }
 
-.close-btn {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    font-size: 2rem;
-    cursor: pointer;
-    color: var(--secondary-color);
-}
+        .salary-box {
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), var(--dark-card));
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
 
-/* أنيميشنز */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .accordion-button {
+            background: var(--dark-card);
+            color: var(--text-light);
+            border: none;
+            padding: 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
 
-@keyframes modalSlide {
-    from { transform: translate(-50%, -60%); opacity: 0; }
-    to { transform: translate(-50%, -50%); opacity: 1; }
-}
+        .accordion-button:not(.collapsed) {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
 
-/* تصميم تفاعلي للجوال */
-@media (max-width: 768px) {
-    .search-section {
-        grid-template-columns: 1fr;
-    }
+        .accordion-body {
+            background: var(--dark-card);
+            color: var(--text-light);
+        }
 
-    .card h2 {
-        font-size: 2rem;
-    }
-}
+        .alert {
+            background: var(--dark-card);
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+
+        .display-4 {
+            font-weight: 600;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(66, 133, 244, 0.3);
+        }
+
+        .deduction-item {
+            background: var(--dark-card);
+            border-left: 3px solid var(--danger-color);
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .deduction-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--glow);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        /* Loading Animation */
+        .spinner-border {
+            animation: spin 1s linear infinite, glowPulse 2s infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* تحديث القائمة المنسدلة */
+        .form-select {
+            background-color: var(--dark-input);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            color: var(--text-light);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-select option {
+            background-color: var(--dark-card);
+            color: var(--text-light);
+            padding: 12px;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+            background-color: var(--dark-input);
+        }
+
+        /* تحسين حالة التحويم */
+        .form-select:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--glow);
+        }
+
+        /* تحسين القائمة المنسدلة عند فتحها */
+        .form-select optgroup {
+            background-color: var(--dark-card);
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        /* تحسين العناصر عند التحويم */
+        .form-select option:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
