@@ -512,10 +512,10 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                 const uniqueNames = new Set();
                 
                 // Get first sheet to extract names (for efficiency)
-                const firstSheet = sheetNames[0];
+                const lastSheet = sheetNames[sheetNames.length - 1];
                 const response = await fetch(
-                    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(firstSheet)}?key=${API_KEY}`
-                );
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(lastSheet)}?key=${API_KEY}`
+);
                 
                 if (!response.ok) throw new Error('API_ERROR');
                 
