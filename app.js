@@ -12,7 +12,7 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                 const sheets = data.sheets.map(sheet => sheet.properties.title);
                 const periods = organizeIntoPeriods(sheets);
                 populatePeriodsDropdown(periods);
-                
+
                 // Add this: Initialize names autocomplete after loading periods
                 await initializeNamesAutocomplete(sheets);
             } catch (error) {
@@ -79,7 +79,7 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                     const monthName = monthNames[period.month - 1];
                     const prevMonth = period.month === 1 ? 12 : period.month - 1;
                     const prevMonthName = monthNames[prevMonth - 1];
-                    
+
                     // Sort sheets to display date range
                     const sortedSheets = period.sheets.sort((a, b) => {
                         const [dayA, monthA] = a.split('/').map(Number);
@@ -189,7 +189,7 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
 
             // Calculate deductions
             const deductions = [];
-            
+
             // Check late arrival - only add deduction if there's no "Late Arrival" violation
             if (checkInTime && checkLateTime(checkInTime) && 
                 (!violation || !violation.toLowerCase().includes('late arrival'))) {
@@ -510,31 +510,31 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
         async function initializeNamesAutocomplete(sheetNames) {
             try {
                 const uniqueNames = new Set();
-                
+
                 // Get first sheet to extract names (for efficiency)
-                const lastSheet = sheetNames[sheetNames.length - 1];
+                const firstSheet = sheetNames[0];
                 const response = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(lastSheet)}?key=${API_KEY}`
-);
-                
+                    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(firstSheet)}?key=${API_KEY}`
+                );
+
                 if (!response.ok) throw new Error('API_ERROR');
-                
+
                 const data = await response.json();
                 if (!data.values || data.values.length < 2) return;
-                
+
                 // Find name column index
                 const headerRow = data.values[0];
                 const nameColumnIndex = headerRow.findIndex(col => col?.toLowerCase().includes('name'));
-                
+
                 if (nameColumnIndex === -1) return;
-                
+
                 // Extract all names
                 data.values.slice(1).forEach(row => {
                     if (row[nameColumnIndex]) {
                         uniqueNames.add(row[nameColumnIndex].trim());
                     }
                 });
-                
+
                 // Create or update datalist
                 let datalist = document.getElementById('employeeNamesList');
                 if (!datalist) {
@@ -542,16 +542,16 @@ const SHEET_ID = "1xydLswJHJPS6Vry7P7XcjUMdTRJK1vQ-VatN4B4chLI";
                     datalist.id = 'employeeNamesList';
                     document.body.appendChild(datalist);
                 }
-                
+
                 datalist.innerHTML = Array.from(uniqueNames)
                     .sort()
                     .map(name => `<option value="${name}">`)
                     .join('');
-                    
+
                 // Add datalist to input
                 const employeeNameInput = document.getElementById('employeeName');
                 employeeNameInput.setAttribute('list', 'employeeNamesList');
-                
+
             } catch (error) {
                 console.error('Error initializing names autocomplete:', error);
             }
