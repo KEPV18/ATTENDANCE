@@ -1,34 +1,43 @@
 :root {
+    /* الألوان الأساسية */
     --primary-color: #4285f4;
     --secondary-color: #1a73e8;
     --success-color: #34a853;
     --danger-color: #ea4335;
-    --dark-bg: #1a1a1a;
-    --dark-card: #2d2d2d;
+
+    /* الألوان الداكنة */
+    --dark-bg: #0d0d0d;
+    --dark-card: #1c1c1c;
     --dark-input: #333333;
+
+    /* ألوان النص */
     --text-light: #ffffff;
     --text-gray: #b0b0b0;
+
+    /* تأثيرات الظلال والإضاءات */
     --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     --glow: 0 0 20px rgba(11, 61, 145, 0.15);
-    --space-gradient: linear-gradient(135deg, var(--nasa-blue) 0%, #000000 100%);
-    --nebula-glow: 0 0 50px rgba(11, 61, 145, 0.2);
-    --star-color: rgba(255, 255, 255, 0.8);
+    --nebula-glow: 0 0 40px rgba(11, 61, 145, 0.25);
+
+    /* خلفيات ونجوم */
+    --space-gradient: radial-gradient(circle at 50% 50%, #0B3D91, #000 90%);
+    --star-color: rgba(255, 255, 255, 0.7);
     --cosmic-border: 1px solid rgba(11, 61, 145, 0.2);
+
+    /* ألوان ناسا وفضائية */
     --nasa-blue: #0B3D91;
     --nasa-red: #FC3D21;
-    --moon-gray: #d3d3d3;
-    --space-black: #121212;
-    --star-white: #ffffff;
-    --moon-surface: #1a1a1a;
-    --moon-dust: #2d2d2d;
-    --moon-rock: #3d3d3d;
-    --moon-silver: #d3d3d3;
     --cosmic-purple: #8a2be2;
     --nebula-blue: #4b0082;
-    --meteor-orange: #ff4500;
-    --lunar-glow: rgba(211, 211, 211, 0.2);
-    --crater-shadow: rgba(0, 0, 0, 0.4);
-    --moon-gradient: linear-gradient(to bottom, var(--moon-surface) 0%, var(--moon-dust) 100%);
+
+    /* القمر وغيره */
+    --moon-gray: #d3d3d3;
+    --space-black: #121212;
+    --moon-dust: #2d2d2d;
+
+    /* تدرجات وخلفيات */
+    --moon-gradient: linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 100%);
+    --cosmic-background: linear-gradient(135deg, rgba(11,61,145, 0.05), rgba(0,0,0,0.7));
 }
 
 body {
@@ -41,29 +50,29 @@ body {
     overflow-x: hidden;
 }
 
-/* تحسين تأثير النجوم */
+/* خلفية فضائية + نجوم + تأثير نبض */
 body::before {
     content: '';
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(1px 1px at 20px 30px, var(--star-color), rgba(0,0,0,0)),
-        radial-gradient(1px 1px at 40px 70px, var(--star-color), rgba(0,0,0,0));
+    inset: 0;
+    background: var(--space-gradient);
+    z-index: -3; /* خلف كل شيء */
+}
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 20px 30px, var(--star-color), transparent),
+        radial-gradient(1px 1px at 40px 70px, var(--star-color), transparent);
     background-size: 200px 200px;
     background-repeat: repeat;
+    z-index: -2;
     animation: twinkle 4s ease-in-out infinite;
-    z-index: -1;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
-/* إزالة الطبقة الإضافية */
-body::after {
-    display: none;
-}
-
+/* الحاوية الرئيسية */
 .container {
     max-width: 1200px;
     background: rgba(11, 61, 145, 0.05);
@@ -76,19 +85,10 @@ body::after {
     position: relative;
     overflow: hidden;
     z-index: 1;
+    animation: fadeIn 0.7s ease-out;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes glowPulse {
-    0% { box-shadow: var(--glow); }
-    50% { box-shadow: 0 0 30px rgba(11, 61, 145, 0.3); }
-    100% { box-shadow: var(--glow); }
-}
-
+/* عناوين */
 h1 {
     color: var(--text-light);
     font-weight: 600;
@@ -96,13 +96,8 @@ h1 {
     position: relative;
     padding-bottom: 1rem;
     text-align: center;
-    animation: slideDown 0.5s ease-out;
+    animation: slideDown 0.6s ease-out;
     text-shadow: 0 0 10px rgba(11, 61, 145, 0.5);
-}
-
-@keyframes slideDown {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
 }
 
 h1:after {
@@ -111,37 +106,30 @@ h1:after {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 100px;
+    width: 120px;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #8a2be2, transparent);
+    background: linear-gradient(90deg, transparent, var(--cosmic-purple), transparent);
     border-radius: 2px;
     animation: cosmicUnderline 2s ease-in-out infinite;
 }
 
-@keyframes cosmicUnderline {
-    0% { width: 0; opacity: 0; }
-    50% { width: 100px; opacity: 1; }
-    100% { width: 0; opacity: 0; }
-}
-
+/* قسم الإدخال (البانل الرئيسي) */
 .input-section {
     background: var(--dark-card);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 2.5rem;
     margin-bottom: 2.5rem;
     box-shadow: var(--card-shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: slideUp 0.5s ease-out;
+    position: relative;
+    animation: slideUp 0.7s ease-out;
     transform-style: preserve-3d;
-    animation: float 6s ease-in-out infinite;
+    animation: float 5s ease-in-out infinite;
 }
 
-@keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.form-control, .form-select {
+/* عناصر النموذج */
+.form-control,
+.form-select {
     background: rgba(11, 61, 145, 0.1);
     border: 1px solid rgba(11, 61, 145, 0.3);
     border-radius: 12px;
@@ -151,22 +139,24 @@ h1:after {
     backdrop-filter: blur(5px);
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     background: rgba(11, 61, 145, 0.2);
     box-shadow: 0 0 20px rgba(11, 61, 145, 0.3);
     border-color: var(--nasa-blue);
 }
 
+/* الأزرار */
 .btn-primary {
-    background: linear-gradient(45deg, #8a2be2, #4b0082);
+    background: linear-gradient(45deg, var(--cosmic-purple), var(--nebula-blue));
     border: none;
     border-radius: 12px;
     padding: 1rem 2rem;
     font-weight: 500;
-    transition: all 0.3s ease;
-    animation: glowPulse 2s infinite;
     position: relative;
     overflow: hidden;
+    transition: all 0.3s ease;
+    animation: glowPulse 2s infinite;
 }
 
 .btn-primary::before {
@@ -176,14 +166,8 @@ h1:after {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
     animation: pulseGlow 2s ease-out infinite;
-}
-
-@keyframes pulseGlow {
-    0% { transform: scale(0.5); opacity: 0; }
-    50% { opacity: 0.5; }
-    100% { transform: scale(1.5); opacity: 0; }
 }
 
 .btn-primary:hover {
@@ -191,6 +175,7 @@ h1:after {
     box-shadow: 0 8px 20px rgba(11, 61, 145, 0.4);
 }
 
+/* بطاقات النتائج */
 .result-card {
     background: rgba(11, 61, 145, 0.1);
     border: var(--cosmic-border);
@@ -198,7 +183,7 @@ h1:after {
     padding: 1.5rem;
     margin: 1rem 0;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.6s ease-out;
     transform-style: preserve-3d;
 }
 
@@ -207,6 +192,7 @@ h1:after {
     box-shadow: var(--nebula-glow);
 }
 
+/* تخصيص ألوان الحدود */
 .border-success {
     border-left: 4px solid var(--success-color);
     background: linear-gradient(to right, rgba(52, 168, 83, 0.1), var(--dark-card));
@@ -222,6 +208,7 @@ h1:after {
     background: linear-gradient(to right, rgba(11, 61, 145, 0.1), var(--dark-card));
 }
 
+/* صندوق الراتب */
 .salary-box {
     background: linear-gradient(135deg, rgba(11, 61, 145, 0.1), var(--dark-card));
     border-radius: 16px;
@@ -229,9 +216,10 @@ h1:after {
     margin-top: 2rem;
     box-shadow: var(--card-shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.6s ease-out;
 }
 
+/* الأكوردين */
 .accordion-button {
     background: var(--dark-card);
     color: var(--text-light);
@@ -240,10 +228,9 @@ h1:after {
     font-weight: 500;
     transition: all 0.3s ease;
 }
-
 .accordion-button:not(.collapsed) {
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    color: white;
+    color: var(--text-light);
 }
 
 .accordion-body {
@@ -259,12 +246,14 @@ h1:after {
     color: var(--text-light);
 }
 
+/* تكبير الأرقام */
 .display-4 {
     font-weight: 600;
     color: var(--primary-color);
     text-shadow: 0 0 10px rgba(11, 61, 145, 0.3);
 }
 
+/* عناصر الاستقطاع */
 .deduction-item {
     background: var(--dark-card);
     border-left: 3px solid var(--danger-color);
@@ -279,25 +268,22 @@ h1:after {
     box-shadow: var(--glow);
 }
 
-/* Custom Scrollbar */
+/* شريط التمرير */
 ::-webkit-scrollbar {
     width: 8px;
 }
-
 ::-webkit-scrollbar-track {
     background: var(--dark-bg);
 }
-
 ::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
 }
 
-/* Loading Animation */
+/* مؤشّر التحميل */
 .spinner-border {
     border: 4px solid transparent;
     border-top-color: var(--nasa-blue);
@@ -305,11 +291,7 @@ h1:after {
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* تحديث القائمة المنسدلة */
+/* تعديل القائمة المنسدلة */
 .form-select {
     background-color: var(--dark-input);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
@@ -323,37 +305,19 @@ h1:after {
     padding: 12px;
 }
 
-.form-select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.2);
-    background-color: var(--dark-input);
-}
-
-/* تحسين حالة التحويم */
+/* تحوّيم على القائمة */
 .form-select:hover {
     border-color: var(--primary-color);
     box-shadow: var(--glow);
 }
 
-/* تحسين القائمة المنسدلة عند فتحها */
-.form-select optgroup {
-    background-color: var(--dark-card);
-    color: var(--text-light);
-    font-weight: 600;
-}
-
-/* تحسين العناصر عند التحويم */
+/* التحوّيم على الخيارات */
 .form-select option:hover {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--text-light);
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-
-/* NASA Logo Styles */
+/* رأس ناسا */
 .nasa-header {
     text-align: center;
     margin-bottom: 3rem;
@@ -383,7 +347,7 @@ h1:after {
     letter-spacing: 2px;
 }
 
-/* Control Panel Styles */
+/* لوحة تحكم كونية */
 .cosmic-panel {
     background: rgba(11, 61, 145, 0.15);
     border: 2px solid rgba(11, 61, 145, 0.3);
@@ -391,7 +355,7 @@ h1:after {
     padding: 2rem;
     position: relative;
     backdrop-filter: blur(15px);
-    box-shadow: 
+    box-shadow:
         0 0 20px rgba(11, 61, 145, 0.2),
         inset 0 0 20px rgba(11, 61, 145, 0.1);
     transform-style: preserve-3d;
@@ -402,7 +366,7 @@ h1:after {
     transform: translateZ(10px);
 }
 
-/* Enhanced Panel Lights */
+/* أضواء اللوحة */
 .panel-lights {
     position: absolute;
     top: 1rem;
@@ -416,39 +380,42 @@ h1:after {
     height: 12px;
     border-radius: 50%;
     box-shadow: 0 0 15px currentColor;
+    filter: brightness(1.2);
 }
 
-.light:nth-child(1) { 
+.light:nth-child(1) {
     background: var(--nasa-red);
     animation: pulse 2s infinite;
 }
-.light:nth-child(2) { 
+.light:nth-child(2) {
     background: var(--text-light);
     animation: pulse 2s infinite 0.6s;
 }
-.light:nth-child(3) { 
+.light:nth-child(3) {
     background: var(--nasa-blue);
     animation: pulse 2s infinite 1.2s;
 }
 
-/* Form Elements */
-.cosmic-input, .cosmic-select {
+/* حقول الإدخال */
+.cosmic-input,
+.cosmic-select {
     background: rgba(11, 61, 145, 0.1);
     border: 1px solid rgba(11, 61, 145, 0.3);
     color: var(--text-light);
     padding: 1rem;
     border-radius: 8px;
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 10px var(--crater-shadow);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
 }
 
-.cosmic-input:focus, .cosmic-select:focus {
+.cosmic-input:focus,
+.cosmic-select:focus {
     background: rgba(11, 61, 145, 0.2);
     border-color: var(--nasa-blue);
     box-shadow: 0 0 20px rgba(11, 61, 145, 0.3);
 }
 
-/* Launch Button */
+/* الزر الكوني */
 .cosmic-btn {
     background: linear-gradient(45deg, var(--nasa-blue), var(--primary-color));
     border: none;
@@ -477,24 +444,7 @@ h1:after {
     animation: buttonGlow 3s linear infinite;
 }
 
-/* Animations */
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.1); }
-}
-
-@keyframes buttonGlow {
-    0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
-    50% { transform: rotate(180deg) scale(1.2); opacity: 0.8; }
-    100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
-}
-
-@keyframes twinkle {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.8; }
-}
-
-/* Mission Output */
+/* صندوق عرض النتائج */
 .mission-output {
     margin-top: 2rem;
     background: rgba(11, 61, 145, 0.15);
@@ -502,9 +452,59 @@ h1:after {
     border-radius: 15px;
     padding: 2rem;
     backdrop-filter: blur(15px);
+    animation: fadeIn 0.6s ease-out;
 }
 
-/* Responsive Adjustments */
+/* الحركات */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes glowPulse {
+    0% { box-shadow: var(--glow); }
+    50% { box-shadow: 0 0 30px rgba(11, 61, 145, 0.3); }
+    100% { box-shadow: var(--glow); }
+}
+@keyframes pulseGlow {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.5; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+@keyframes buttonGlow {
+    0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+    50% { transform: rotate(180deg) scale(1.2); opacity: 0.8; }
+    100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
+}
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+@keyframes cosmicUnderline {
+    0% { width: 0; opacity: 0; }
+    50% { width: 120px; opacity: 1; }
+    100% { width: 0; opacity: 0; }
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* تحجيم النص على الشاشات الصغيرة */
 @media (max-width: 768px) {
     .cosmic-text {
         font-size: 2.5rem;
